@@ -4,6 +4,7 @@ import Index from "./index";
 import Houses from "./components/Houses";
 import Navbar from "./components/Navbar";
 import Register from "./components/Register";
+import Login from './components/Login'
 
 
 
@@ -16,6 +17,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/Login" element={<Login />} />
+
           <Route path="/houses" element={<Houses />} />
         </Routes>
       </div>
