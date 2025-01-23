@@ -22,36 +22,93 @@ const Houses = () => {
     }
   };
 
+  const handleScrollToHouse = (houseName) => {
+    const element = document.getElementById(houseName);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+    // Fetch data for the clicked house
+    const houseData = houseIds.find(house => house.name === houseName);
+    if (houseData) {
+      handleFetchHouse(houseData.id);
+    }
+  };
+
   return (
-    <div style={{ overflowY: "scroll", scrollSnapType: "y mandatory", height: "100vh" }}>
-      {houseIds.map((houseData) => (
-        <div
-          key={houseData.id}
-          style={{
-            height: "100vh",
-            backgroundColor: houseData.backgroundColor,
-            scrollSnapAlign: "start",
-            padding: "20px",
-            color: houseData.textColor
-          }}
-        >
-          <h1>{houseData.name}</h1>
-          <button onClick={() => handleFetchHouse(houseData.id)} style={{ color: houseData.textColor }}>
-            Fetch {houseData.name} Details
-          </button>
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+      {/* Sidebar */}
+      <div
+        style={{
+          width: "200px",
+          backgroundColor: "#333",
+          color: "#fff",
+          paddingTop: "20px",
+          position: "fixed",
+          top: "0",
+          left: "0",
+          height: "100%",
+          overflow: "hidden",  // No scroll in the sidebar
+        }}
+      >
+        <h2 style={{ textAlign: "center" }}>Houses</h2>
+        <ul style={{ listStyle: "none", paddingLeft: "0" }}>
+          {houseIds.map((houseData) => (
+            <li key={houseData.id}>
+              <button
+                onClick={() => handleScrollToHouse(houseData.name)}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  backgroundColor: "transparent",
+                  color: "#fff",
+                  border: "none",
+                  textAlign: "left",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                }}
+              >
+                {houseData.name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
 
-          {error && <p style={{ color: "red" }}>Error: {error}</p>}
+      {/* Main content */}
+      <div style={{ marginLeft: "200px", height: "100vh", overflow: "hidden" }}>
+        {/* Only render house sections if a house is selected */}
+        {house ? (
+          houseIds.map((houseData) => (
+            <div
+              key={houseData.id}
+              id={houseData.name}
+              style={{
+                height: "100vh",
+                backgroundColor: houseData.backgroundColor,
+                padding: "20px",
+                color: houseData.textColor,
+              }}
+            >
+              <h1>{houseData.name}</h1>
 
-          {house && house.name === houseData.name && (
-            <div style={{ marginTop: "20px" }}>
-              <h2>{house.name}</h2>
-              <p><strong>Founder:</strong> {house.founder}</p>
-              <p><strong>Animal:</strong> {house.animal}</p>
-              <p><strong>Traits:</strong> {house.traits.map((trait) => trait.name).join(", ")}</p>
+              {error && <p style={{ color: "red" }}>Error: {error}</p>}
+
+              {/* Conditionally display house data if fetched */}
+              {house && house.name === houseData.name && (
+                <div style={{ marginTop: "20px" }}>
+                  <p><strong>Founder:</strong> {house.founder}</p>
+                  <p><strong>Animal:</strong> {house.animal}</p>
+                  <p><strong>Traits:</strong> {house.traits.map((trait) => trait.name).join(", ")}</p>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      ))}
+          ))
+        ) : (
+          <p style={{ textAlign: "center", marginTop: "50vh", fontSize: "24px" }}>
+            Please select a house from the sidebar to view details.
+          </p>
+        )}
+      </div>
     </div>
   );
 };
