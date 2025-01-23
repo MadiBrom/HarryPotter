@@ -1,30 +1,27 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // to handle redirects
+import { useNavigate } from 'react-router-dom';
 import { loginUser } from "../API/api";
 
-const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const Login = ({ onLogin, email, setEmail, password, setPassword, setFormData }) => {
+
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Hook for redirecting after successful login
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError(null);
-  
+
     try {
-      console.log("Login attempt with:", { email, password }); // Debug log
-      const data = await loginUser({ email, password }); // Ensure this function works correctly
-  
+      const data = await loginUser({ email, password });
+
       if (data.token) {
-        console.log("Login successful:", data); // Debug log
-        navigate('/profile'); // Redirect on success
+        onLogin({ username: data.username, email: email, password: password }); // Update state in App
+        navigate('/profile');
       } else {
-        setError("Invalid credentials, please try again."); // If no token, show error
+        setError('Invalid credentials, please try again.');
       }
     } catch (err) {
-      console.error("Login failed:", err.message); // Debug log
-      setError(err.message); // Set the error message
+      setError(err.message || 'An unexpected error occurred.');
     }
   };
 

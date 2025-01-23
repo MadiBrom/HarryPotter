@@ -2,8 +2,15 @@ import React, { useState } from "react";
 import createNewUser from "../API/api";
 import { useNavigate } from "react-router-dom";
 
-const Register = ({formData, setFormData}) => {
-  const navigate = useNavigate();  // Corrected this line
+const Register = ({
+  formData,
+  setFormData,
+  email,
+  password,
+  setEmail,
+  setPassword,
+}) => {
+  const navigate = useNavigate();
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -29,8 +36,17 @@ const Register = ({formData, setFormData}) => {
         setError(response.error);
       } else {
         setSuccess("Registration successful!");
-        navigate("/profile");  // This will navigate to the profile page
-        setFormData({ username: "", email: "", password: "" }); // Clear the form
+
+        // Pass user details as state while navigating
+        navigate("/profile", {
+          state: {
+            username: formData.username,
+            email: formData.email,
+          },
+        });
+
+        // Clear the form after navigation
+        setFormData({ username: "", email: "", password: "" });
       }
     } catch (error) {
       setError("Something went wrong. Please try again.");
