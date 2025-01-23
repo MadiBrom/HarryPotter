@@ -76,3 +76,29 @@ export async function fetchHouses(id) {
     throw error;
   }
 }
+
+
+export async function fetchUserData () {
+  const token = localStorage.getItem('token'); // Get token from localStorage
+
+  if (!token) {
+    throw new Error('No authentication token found.');
+  }
+
+  try {
+    const response = await fetch(`${api_url}/user`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Add token to the request header
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch user data.');
+    }
+
+    const data = await response.json();
+    return data; // Return the user data (e.g., { username: 'JohnDoe' })
+  } catch (error) {
+    throw new Error('Error fetching user data: ' + error.message);
+  }
+};

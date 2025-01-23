@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // to handle redirects
-import {loginUser} from "../API/api";
+import { loginUser } from "../API/api";
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -18,14 +18,15 @@ const Login = () => {
   
       if (data.token) {
         console.log("Login successful:", data); // Debug log
-        navigate('/'); // Redirect on success
+        navigate('/profile'); // Redirect on success
+      } else {
+        setError("Invalid credentials, please try again."); // If no token, show error
       }
     } catch (err) {
       console.error("Login failed:", err.message); // Debug log
-      setError(err.message);
+      setError(err.message); // Set the error message
     }
   };
-  
 
   return (
     <div style={{ maxWidth: '400px', margin: 'auto', padding: '1rem' }}>
