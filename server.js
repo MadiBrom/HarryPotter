@@ -29,7 +29,7 @@ app.get("/test", (req, res) => {
 });
 
 // Registration route
-app.post('/api/register', async (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
   const { username, email, password } = req.body;
   
   if (!username || !email || !password) {
@@ -55,33 +55,31 @@ app.post('/api/register', async (req, res) => {
 
 
 // Login route with detailed logging for debugging
-app.post('/api/login', async (req, res) => {
-  console.log('Request body:', req.body); // Log the incoming body
-
-  const { email, password } = req.body;
+app.post('/api/auth/login', async (req, res) => {
+    console.log("Login request received:", req.body); // Debug log
+    const { email, password } = req.body;
   
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email and password are required." });
-  }
-
-  try {
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (!user || !await bcrypt.compare(password, user.password)) {
-      return res.status(401).json({ message: "Invalid login credentials" });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required." });
     }
-
-    res.status(200).json({ message: "Login successful", user });
-
-  } catch (error) {
-    console.error("Error during login:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-
+  
+    try {
+      const user = await prisma.user.findUnique({
+        where: { email },
+      });
+  
+      if (!user || !await bcrypt.compare(password, user.password)) {
+        return res.status(401).json({ message: "Invalid login credentials" });
+      }
+  
+      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      res.status(200).json({ message: "Login successful", token, user });
+    } catch (error) {
+      console.error("Login error:", error.message); // Debug log
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
 // Start the server
 app.listen(port, () => {
   console.log(`App running at http://localhost:${port}`);

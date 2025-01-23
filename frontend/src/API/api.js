@@ -11,7 +11,7 @@ const handleErrorResponse = async (response) => {
 // Create New User
 const createNewUser = async (username, email, password) => {
   try {
-    const response = await fetch(`${api_url}/register`, {
+    const response = await fetch(`${api_url}/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -34,33 +34,34 @@ export default createNewUser;
 
 // Login User
 export async function loginUser({ email, password }) {
+  console.log("Sending login request with:", { email, password }); // Debug log
+
   if (!email || !password) {
     throw new Error("Email and password are required.");
   }
 
   try {
-    const response = await fetch(`${api_url}/login`, {
+    const response = await fetch(`${api_url}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password }), // Ensure payload matches the backend expectations
     });
 
     if (!response.ok) {
-      await handleErrorResponse(response);
+      const errorData = await response.json();
+      console.error("Login error response:", errorData); // Debug log
+      throw new Error(errorData.message || "Login failed.");
     }
 
-    const data = await response.json();
-    
-    // Save token to localStorage (or sessionStorage)
-    localStorage.setItem('authToken', data.token); // Store the token
-    return data; // Return user data or token
+    return await response.json(); // Expect token and user data
   } catch (error) {
-    console.error("Error logging in:", error);
+    console.error("Error during login:", error.message); // Debug log
     throw error;
   }
 }
+
 
 // Fetch a House
 export async function fetchHouses(id) {

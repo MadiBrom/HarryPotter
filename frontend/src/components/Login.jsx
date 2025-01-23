@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // to handle redirects
-import loginUser from "../API/api";
+import {loginUser} from "../API/api";
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -11,18 +11,21 @@ const Login = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError(null);
-
+  
     try {
-      const data = await loginUser({ email, password });
-      
-      // If login is successful, redirect to dashboard (or another page)
+      console.log("Login attempt with:", { email, password }); // Debug log
+      const data = await loginUser({ email, password }); // Ensure this function works correctly
+  
       if (data.token) {
-        navigate('/'); // You can change the route based on your needs
+        console.log("Login successful:", data); // Debug log
+        navigate('/'); // Redirect on success
       }
     } catch (err) {
-      setError(err.message); // Show error message if login fails
+      console.error("Login failed:", err.message); // Debug log
+      setError(err.message);
     }
   };
+  
 
   return (
     <div style={{ maxWidth: '400px', margin: 'auto', padding: '1rem' }}>
