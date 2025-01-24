@@ -1,0 +1,33 @@
+ 
+
+  /* Styling for labels and range inputs */
+  .pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  .pagination-controls button {
+    padding: 10px;
+    margin: 0 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .pagination-controls button:hover {
+    background-color: #45a049;
+  }
+  
+  .pagination-controls button:focus {
+    outline: none;
+  }
+  
+  .pagination-controls span {
+    font-size: 1.2rem;
+    margin: 0 10px;
+  }
+  
