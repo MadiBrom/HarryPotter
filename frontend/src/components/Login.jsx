@@ -2,26 +2,49 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from "../API/api";
 
-const Login = ({ onLogin, email, setEmail, password, setPassword}) => {
-
+const Login = ({ onLogin }) => {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError(null);
 
-    try {
-      const data = await loginUser({ email, password });
+    // Ensure formData has email and password
+    if (!formData.email || !formData.password) {
+      setError('Email and password are required.');
+      return;
+    }
 
-      if (data.token) {
-        onLogin({ username: data.username, email: email, password: password }); // Update state in App
-        navigate('/profile');
-      } else {
-        setError('Invalid credentials, please try again.');
+    try {
+      const loginResponse = await loginUser({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (loginResponse.token) {
+        const userData = {
+          username: loginResponse.username || formData.username,
+          email: formData.email,
+          token: loginResponse.token,
+        };
+        onLogin(userData); // Store user data
+        navigate("/profile");
       }
     } catch (err) {
-      setError(err.message || 'An unexpected error occurred.');
+      setError('Login failed. Please try again.');
     }
   };
 
@@ -33,8 +56,9 @@ const Login = ({ onLogin, email, setEmail, password, setPassword}) => {
           <label>Email</label>
           <input
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
             required
             style={{ width: '100%', padding: '0.5rem' }}
           />
@@ -43,8 +67,9 @@ const Login = ({ onLogin, email, setEmail, password, setPassword}) => {
           <label>Password</label>
           <input
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
             required
             style={{ width: '100%', padding: '0.5rem' }}
           />

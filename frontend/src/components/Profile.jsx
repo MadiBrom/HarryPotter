@@ -4,15 +4,18 @@ const Profile = ({ formData, setFormData }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch user data from localStorage
+    // Fetch user data only when component mounts
     const savedUserData = localStorage.getItem("userData");
     if (savedUserData) {
       const parsedData = JSON.parse(savedUserData);
-      setFormData(parsedData); // Populate formData
+      // Only update formData if it's not already populated
+      if (!formData.username) {
+        setFormData(parsedData); // Populate formData
+      }
     } else {
       setError("No user data found. Please log in again.");
     }
-  }, [setFormData]);
+  }, []); // Empty dependency array, run only once on mount
 
   if (error) {
     return <div>Error: {error}</div>;
@@ -24,7 +27,7 @@ const Profile = ({ formData, setFormData }) => {
 
   return (
     <div>
-      <h1>Welcome, {formData.username}!</h1>
+      <h1>Welcome, {loginResponse.username ||formData.username}!</h1>
       <p>Email: {formData.email}</p>
     </div>
   );

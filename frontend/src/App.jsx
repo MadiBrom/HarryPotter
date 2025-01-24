@@ -53,10 +53,19 @@ function App() {
     />
   }
 />
-          <Route
-            path="/login"
-            element={<Login onLogin={handleLogin} email={email} setEmail={setEmail} password={password} setPassword={setPassword} formData={formData} setFormData={setFormData}/>}
-          />
+<Route
+    path="/login"
+    element={
+      <Login
+      formData={formData}
+        onLogin={handleLogin}
+        email={email}
+        setEmail={setEmail}
+        password={password}
+        setPassword={setPassword}
+      />
+    }
+  />
 <Route
   path="/profile"
   element={
