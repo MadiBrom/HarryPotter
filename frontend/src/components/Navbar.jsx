@@ -8,6 +8,8 @@ const Navbar = ({ isLoggedIn, handleLogout }) => {
     <div style={{ position: 'fixed', top: 0, right: 0, zIndex: 1000 }}>
       <button onClick={() => navigate('/')}>Home</button>
       <button onClick={() => navigate('/houses')}>Houses</button>
+      <button onClick={() => navigate('/test')}>Test</button>
+
 
       {isLoggedIn ? (
         <>

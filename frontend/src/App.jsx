@@ -8,6 +8,7 @@ import Navbar from "./components/Navbar";
 import Register from "./components/Register";
 import Login from './components/Login';
 import Profile from "./components/Profile";
+import Test from "./components/Test";
 
 function App() {
     const [email, setEmail] = useState('');
@@ -72,7 +73,10 @@ function App() {
       <Profile formData={formData} email={email} setEmail={setEmail} password={password} setPassword={setPassword} setFormData={setFormData}/>
 
   }
-/>          <Route path="/houses" element={<Houses />} />
+/>          
+<Route path="/houses" element={<Houses />} />
+<Route path="/test" element={<Test />} />
+
         </Routes>
       </div>
     </Router>
