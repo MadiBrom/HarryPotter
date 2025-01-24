@@ -1,15 +1,9 @@
 import React, { useState } from "react";
+import {loginUser} from "../API/api"
 import createNewUser from "../API/api";
 import { useNavigate } from "react-router-dom";
 
-const Register = ({
-  formData,
-  setFormData,
-  email,
-  password,
-  setEmail,
-  setPassword,
-}) => {
+const Register = ({ formData, setFormData, onLogin }) => {
   const navigate = useNavigate();
 
   const [error, setError] = useState("");
@@ -24,35 +18,45 @@ const Register = ({
     e.preventDefault();
     setError("");
     setSuccess("");
-
+  
     try {
-      const response = await createNewUser(
+      console.log("Register form data before submission:", formData);
+  
+      // Register the user
+      const registrationResponse = await createNewUser(
         formData.username,
         formData.email,
         formData.password
       );
-
-      if (response.error) {
-        setError(response.error);
-      } else {
-        setSuccess("Registration successful!");
-
-        // Pass user details as state while navigating
-        navigate("/profile", {
-          state: {
-            username: formData.username,
-            email: formData.email,
-          },
-        });
-
-        // Clear the form after navigation
-        setFormData({ username: "", email: "", password: "" });
+  
+      if (registrationResponse.error) {
+        setError(registrationResponse.error);
+        return;
+      }
+  
+      setSuccess("Registration successful!");
+  
+      // Automatically log in the user after registration
+      const loginResponse = await loginUser({
+        email: formData.email,
+        password: formData.password,
+      });
+  
+      if (loginResponse.token) {
+        const userData = {
+          username: registrationResponse.username || formData.username,
+          email: formData.email,
+          token: loginResponse.token,
+        };
+        onLogin(userData); // Store user data
+        navigate("/profile");
       }
     } catch (error) {
       setError("Something went wrong. Please try again.");
+      console.error("Error during registration or login:", error);
     }
   };
-
+  
   return (
     <div style={{ maxWidth: "400px", margin: "auto", padding: "20px" }}>
       <h2>Register</h2>

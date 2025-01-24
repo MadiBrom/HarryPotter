@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from "../API/api";
 
-const Login = ({ onLogin, email, setEmail, password, setPassword, setFormData }) => {
+const Login = ({ onLogin, email, setEmail, password, setPassword}) => {
 
   const [error, setError] = useState(null);
   const navigate = useNavigate();

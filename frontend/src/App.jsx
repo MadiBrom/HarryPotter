@@ -44,9 +44,15 @@ function App() {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route
-            path="/register"
-            element={<Register email={email} setEmail={setEmail} password={password} setPassword={setPassword} formData={formData} setFormData={setFormData} onRegister={handleLogin} />}
-          />
+  path="/register"
+  element={
+    <Register
+      formData={formData}
+      setFormData={setFormData}
+      onLogin={handleLogin}
+    />
+  }
+/>
           <Route
             path="/login"
             element={<Login onLogin={handleLogin} email={email} setEmail={setEmail} password={password} setPassword={setPassword} formData={formData} setFormData={setFormData}/>}
