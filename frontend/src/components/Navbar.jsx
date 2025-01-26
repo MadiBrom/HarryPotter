@@ -10,7 +10,6 @@ const Navbar = ({ isLoggedIn, handleLogout }) => {
       <button onClick={() => navigate('/houses')}>Houses</button>
       <button onClick={() => navigate('/test')}>Test</button>
 
-
       {isLoggedIn ? (
         <>
           <button onClick={() => navigate('/profile')}>Profile</button>

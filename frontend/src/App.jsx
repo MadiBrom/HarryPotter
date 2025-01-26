@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { Navigate } from "react-router-dom";
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Index from "./index";
 import Houses from "./components/Houses";
