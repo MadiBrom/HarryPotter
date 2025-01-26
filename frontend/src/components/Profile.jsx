@@ -1,43 +1,50 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from "react";
+import { getUser } from "../API/api";
 
-const Profile = ({ formData, setFormData }) => {
-  const [error, setError] = useState(null);
+const Profile = () => {
+  const [userData, setUserData] = useState(null);
+  const [error, setError] = useState("");
 
-  // useEffect(() => {
-  //   // Fetch user data only when component mounts
-  //   const savedUserData = localStorage.getItem("userData");
-  //   if (savedUserData) {
-  //     const parsedData = JSON.parse(savedUserData);
-  //     console.log("Parsed Data:", parsedData);
-  //     // Add username as a fallback if it is missing in the saved data
-  //     if (!formData.username) {
-  //       formData.username = '';  // Set default value if username is missing
-  //     }
-  //     // Only update formData if it's not already populated
-  //     if (!formData.username) {
-  //       setFormData(parsedData); // Populate formData if not already set
-  //     }
-  //   } else {
-  //     setError("No user data found. Please log in again.");
-  //   }
-  // }, []); // Empty dependency array, run only once on mount
-  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Authentication token is missing. Please log in.");
+        return;
+      }
 
-  // Log formData state to track if it's being updated
-  console.log("Form Data:", formData);
+      try {
+        const user = await getUser(token);
+        if (user.error) {
+          setError(user.error);
+        } else {
+          setUserData(user);
+        }
+      } catch (err) {
+        setError("Failed to fetch user data. Please try again.");
+        console.error("Error fetching user data:", err);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <div style={{ color: "red" }}>
+        <p>Error: {error}</p>
+      </div>
+    );
   }
 
-  if (!formData.email) {
-    return <div>Loading...</div>;
+  if (!userData) {
+    return <p>Loading...</p>;
   }
 
   return (
     <div>
-      <h1>Welcome, {formData.username}!</h1>
-      <p>Email: {formData.email}</p>
+      <h1>Welcome, {userData.username}!</h1>
+      <p>Email: {userData.email}</p>
     </div>
   );
 };

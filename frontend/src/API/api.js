@@ -1,5 +1,5 @@
 const API_URL = "https://wizard-world-api.herokuapp.com";
-const api_url = "http://localhost:3333/api";
+const api_url = "http://localhost:3000/api";
 
 // Helper Function to handle errors
 const handleErrorResponse = async (response) => {
@@ -20,15 +20,18 @@ const createNewUser = async (username, email, password) => {
     });
 
     if (!response.ok) {
-      await handleErrorResponse(response);
+      const errorData = await response.json();
+      console.error("Error response:", errorData); // Debug log
+      throw new Error(errorData.message || "Registration failed.");
     }
 
-    return await response.json();
+    return await response.json(); // Return parsed JSON response
   } catch (error) {
     console.error("Error during registration:", error);
     return { error: error.message };
   }
 };
+
 
 export default createNewUser;
 
@@ -48,13 +51,12 @@ export async function loginUser({ email, password }) {
       },
       body: JSON.stringify({ email, password }), // Ensure payload matches the backend expectations
     });
-
+    console.log("Sending login request with:", response);
     if (!response.ok) {
       const errorData = await response.json();
       console.error("Login error response:", errorData); // Debug log
       throw new Error(errorData.message || "Login failed.");
     }
-
     return await response.json(); // Expect token and user data
   } catch (error) {
     console.error("Error during login:", error.message); // Debug log
@@ -77,28 +79,23 @@ export async function fetchHouses(id) {
   }
 }
 
-
-export async function fetchUserData () {
-  const token = localStorage.getItem('token'); // Get token from localStorage
-
-  if (!token) {
-    throw new Error('No authentication token found.');
-  }
-
+export const getUser = async (token) => {
   try {
     const response = await fetch(`${api_url}/user`, {
+      method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`, // Add token to the request header
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Ensure token is passed in headers
       },
     });
-
+        console.log("Token passed to getUser:", token);
     if (!response.ok) {
-      throw new Error('Failed to fetch user data.');
+      throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
 
-    const data = await response.json();
-    return data; // Return the user data (e.g., { username: 'JohnDoe' })
+    return await response.json();
   } catch (error) {
-    throw new Error('Error fetching user data: ' + error.message);
+    console.error("Error in getUser:", error);
+    return { error: error.message };
   }
 };

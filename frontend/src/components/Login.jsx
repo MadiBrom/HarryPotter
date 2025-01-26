@@ -1,84 +1,61 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { loginUser } from "../API/api";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { loginUser } from "../API/api"; // Ensure correct import
 
-const Login = ({ onLogin }) => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
+  const navigate = useNavigate(); // Initialize useNavigate
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setError(null);
-
-    // Ensure formData has email and password
-    if (!formData.email || !formData.password) {
-      setError('Email and password are required.');
-      return;
-    }
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
 
     try {
-      const loginResponse = await loginUser({
-        email: formData.email,
-        password: formData.password,
-      });
+      // Pass email and password directly to loginUser
+      const data = await loginUser({ email, password });
 
-      if (loginResponse.token) {
-        const userData = {
-          username: loginResponse.username || formData.username,
-          email: formData.email,
-          token: loginResponse.token,
-        };
-        onLogin(userData); // Store user data
-        navigate("/profile");
-      }
+      // Save token to localStorage
+      localStorage.setItem("token", data.token);
+
+      // Show success message and navigate to /profile
+      setSuccess("Login successful! Redirecting...");
+      setTimeout(() => {
+        navigate("/profile"); // Redirect to /profile
+      }, 1000);
     } catch (err) {
-      setError('Login failed. Please try again.');
+      // Handle error and display error message
+      setError(err.message || "Login failed. Please try again.");
+      console.error("Login error:", err);
     }
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: 'auto', padding: '1rem' }}>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            style={{ width: '100%', padding: '0.5rem' }}
-          />
-        </div>
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Password</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            style={{ width: '100%', padding: '0.5rem' }}
-          />
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit" style={{ padding: '0.5rem', width: '100%' }}>
-          Login
-        </button>
+    <div>
+      <h1>Login</h1>
+      <form onSubmit={handleLogin}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Login</button>
       </form>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      {success && <p style={{ color: "green" }}>{success}</p>}
     </div>
   );
 };
