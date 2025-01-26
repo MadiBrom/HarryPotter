@@ -1,41 +1,55 @@
 import React, { useState } from "react";
-import createNewUser from "../API/api";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import createNewUser from "../API/api"; // Ensure correct import
+import { loginUser } from "../API/api"; // Import loginUser for auto-login after registration
 
-const Register = () => {
+const Register = ({ setUser }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const navigate = useNavigate(); // Initialize useNavigate
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
-  
+
     if (!username || !email || !password) {
       setError("All fields are required.");
       return;
     }
-  
+
     try {
+      // Register the new user
       const response = await createNewUser(username, email, password);
-  
+
       if (response.error) {
         setError(response.error);
         return;
       }
-  
-      setSuccess("Registration successful! You can now log in.");
-      setUsername("");
-      setEmail("");
-      setPassword("");
+
+      // Auto-login the new user after registration
+      const loginResponse = await loginUser({ email, password });
+
+      if (loginResponse.token) {
+        localStorage.setItem("token", loginResponse.token); // Save token
+        setUser(loginResponse.user); // Update the state with the new user data
+
+        setSuccess("Registration successful! Redirecting...");
+        setTimeout(() => {
+          navigate("/profile"); // Redirect to profile page
+        }, 1000);
+      } else {
+        setError("Auto-login failed. Please log in manually.");
+      }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
       console.error("Registration error:", err);
     }
   };
-  
 
   return (
     <div>

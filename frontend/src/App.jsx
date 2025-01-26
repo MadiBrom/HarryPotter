@@ -11,6 +11,7 @@ import Profile from "./components/Profile";
 import Test from "./components/Test";
 
 function App() {
+  const [user, setUser] = useState(null); // Global user state
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [formData, setFormData] = useState({
@@ -51,6 +52,7 @@ function App() {
       formData={formData}
       setFormData={setFormData}
       onLogin={handleLogin}
+      setUser={setUser}
     />
   }
 />
@@ -59,6 +61,7 @@ function App() {
     element={
       <Login
       formData={formData}
+      setUser={setUser}
         onLogin={handleLogin}
         email={email}
         setEmail={setEmail}
@@ -70,7 +73,7 @@ function App() {
 <Route
   path="/profile"
   element={
-      <Profile formData={formData} email={email} setEmail={setEmail} password={password} setPassword={setPassword} setFormData={setFormData}/>
+      <Profile user={user} formData={formData} email={email} setEmail={setEmail} password={password} setPassword={setPassword} setFormData={setFormData}/>
 
   }
 />          
