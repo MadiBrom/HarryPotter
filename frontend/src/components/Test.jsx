@@ -152,7 +152,7 @@ const traits = {
   }
 };
 
-const Test = () => {
+const Test = ({onSubmit}) => {
   const [answers, setAnswers] = useState({});
   const [houseResult, setHouseResult] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -160,14 +160,12 @@ const Test = () => {
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
 
   useEffect(() => {
-    // Shuffle the questions on component mount
     const allQuestions = Object.entries(traits).flatMap(([house, qualities]) =>
       Object.entries(qualities).flatMap(([trait, questions]) =>
         questions.map(question => ({ house, trait, question }))
       )
     );
 
-    // Shuffle function
     const shuffleArray = (array) => {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -176,10 +174,9 @@ const Test = () => {
       return array;
     };
 
-    setShuffledQuestions(shuffleArray(allQuestions)); // Shuffle the questions
+    setShuffledQuestions(shuffleArray(allQuestions));
   }, []);
 
-  // Get the current questions for the current page
   const getQuestionsForPage = () => {
     const startIndex = (currentPage - 1) * questionsPerPage;
     const endIndex = currentPage * questionsPerPage;
@@ -207,24 +204,25 @@ const Test = () => {
       Slytherin: 0,
     };
 
-    // Calculate scores for each house based on answers
     Object.entries(answers).forEach(([house, traits]) => {
       Object.entries(traits).forEach(([trait, questions]) => {
         Object.entries(questions).forEach(([question, answer]) => {
-          houseScores[house] += answer; // Add points based on the sliding scale
+          houseScores[house] += answer;
         });
       });
     });
 
-    // Find the house with the highest score
     const maxScoreHouse = Object.keys(houseScores).reduce((maxHouse, currentHouse) =>
       houseScores[currentHouse] > houseScores[maxHouse] ? currentHouse : maxHouse
     );
 
     setHouseResult(maxScoreHouse);
+    onSubmit({
+      houseResult: maxScoreHouse,
+      answers: answers,
+    });
   };
 
-  // Handle page change
   const changePage = (direction) => {
     if (direction === 'next' && currentPage < Math.ceil(shuffledQuestions.length / questionsPerPage)) {
       setCurrentPage((prevPage) => prevPage + 1);
@@ -234,10 +232,9 @@ const Test = () => {
   };
 
   return (
-    <div>
+    <div className="test-container">
       <h1>Which House Are You?</h1>
 
-      {/* Pagination controls */}
       <div className="pagination-controls">
         <button onClick={() => changePage('prev')} disabled={currentPage === 1}>
           Previous
@@ -248,23 +245,22 @@ const Test = () => {
         </button>
       </div>
 
-      {/* Display questions for the current page */}
       {getQuestionsForPage().map(({ house, trait, question }, index) => (
-        <div key={index}>
+        <div key={index} className="question-item">
           <h3>{question}</h3>
-          <label>Strongly Disagree</label>
+          <label className="range-label">Strongly Disagree</label>
           <input
             type="range"
+            className="range-input"
             min="-2"
             max="2"
             value={answers[house]?.[trait]?.[question] || 0}
             onChange={(e) => handleAnswerChange(house, trait, question, Number(e.target.value))}
           />
-          <label>Strongly Agree</label>
+          <label className="range-label">Strongly Agree</label>
         </div>
       ))}
 
-      {/* Pagination controls */}
       <div className="pagination-controls">
         <button onClick={() => changePage('prev')} disabled={currentPage === 1}>
           Previous
@@ -276,10 +272,10 @@ const Test = () => {
       </div>
 
       <br />
-      <button onClick={calculateHouse}>Submit</button>
+      <button className="submit-btn" onClick={calculateHouse}>Submit</button>
 
       {houseResult && (
-        <div>
+        <div className="house-result">
           <h2>Your Most Likely House: {houseResult}</h2>
         </div>
       )}

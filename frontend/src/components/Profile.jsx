@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getUser } from "../API/api";
 
-const Profile = () => {
+const Profile = ({ testResults }) => {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState("");
 
@@ -45,6 +45,14 @@ const Profile = () => {
     <div>
       <h1>Welcome, {userData.username}!</h1>
       <p>Email: {userData.email}</p>
+
+      {testResults && (
+        <div>
+          <h2>Your Test Results</h2>
+          <p>Most Likely House: {testResults.houseResult}</p>
+          {/* Optionally, display more detailed answers */}
+        </div>
+      )}
     </div>
   );
 };

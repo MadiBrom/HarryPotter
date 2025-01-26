@@ -9,6 +9,7 @@ import Profile from "./components/Profile";
 import Test from "./components/Test";
 
 function App() {
+  const [testResults, setTestResults] = useState(null);
   const [user, setUser] = useState(null); // Global user state
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -22,6 +23,9 @@ function App() {
     return localStorage.getItem('isLoggedIn') === 'true';
   });
 
+  const handleTestSubmit = (results) => {
+    setTestResults(results);
+  };
 
   const handleLogin = (userData) => {
     setIsLoggedIn(true);
@@ -71,12 +75,12 @@ function App() {
 <Route
   path="/profile"
   element={
-      <Profile user={user} formData={formData} email={email} setEmail={setEmail} password={password} setPassword={setPassword} setFormData={setFormData}/>
+      <Profile testResults={testResults} user={user} formData={formData} email={email} setEmail={setEmail} password={password} setPassword={setPassword} setFormData={setFormData}/>
 
   }
 />          
 <Route path="/houses" element={<Houses />} />
-<Route path="/test" element={<Test />} />
+<Route path="/test" element={<Test onSubmit={handleTestSubmit} />} />
 
         </Routes>
       </div>
