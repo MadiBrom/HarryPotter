@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Test.css';
+import { saveTestResults } from '../API/api';
 
 const traits = {
   Gryffindor: {
@@ -163,7 +164,7 @@ const Modal = ({ houseResult, onClose }) => {
   );
 };
 
-const Test = ({ onSubmit }) => {
+const Test = ({ onSubmit, token }) => { // Add token as a prop
   const [answers, setAnswers] = useState({});
   const [houseResult, setHouseResult] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -237,8 +238,15 @@ const Test = ({ onSubmit }) => {
       houseResult: maxScoreHouse,
       answers: answers,
     });
+
+    // Save the results to the API
+    if (token) {
+      saveTestResults(token, {
+        houseResult: maxScoreHouse,
+        answers: answers,
+      });
+    }
   };
-  
 
   const changePage = (direction) => {
     if (direction === 'next' && currentPage < Math.ceil(shuffledQuestions.length / questionsPerPage)) {
@@ -267,14 +275,13 @@ const Test = ({ onSubmit }) => {
           <h3>{question}</h3>
           <label className="range-label">Strongly Disagree</label>
           <input
-  type="range"
-  className="range-input"
-  min="-2"
-  max="2"
-  value={answers[house]?.[trait]?.[question] ?? 0} // Ensure a default value of 0
-  onChange={(e) => handleAnswerChange(house, trait, question, Number(e.target.value))}
-/>
-
+            type="range"
+            className="range-input"
+            min="-2"
+            max="2"
+            value={answers[house]?.[trait]?.[question] ?? 0} // Ensure a default value of 0
+            onChange={(e) => handleAnswerChange(house, trait, question, Number(e.target.value))}
+          />
           <label className="range-label">Strongly Agree</label>
         </div>
       ))}

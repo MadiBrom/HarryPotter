@@ -73,6 +73,11 @@ app.post("/api/auth/login", async (req, res) => {
     res.status(500).json({ message: "Error during login.", error: error.message });
   }
 });
+app.post('/api/auth/logout', (req, res) => {
+  // Add logout logic here, like clearing the session or invalidating the token.
+  res.status(200).json({ message: 'Logged out successfully' });
+});
+
 
 // Protected route to get user data
 app.get("/api/user", authenticateToken, async (req, res) => {
@@ -88,6 +93,37 @@ app.get("/api/user", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Error fetching user data." });
   }
 });
+
+app.get("/api/test-results", authenticateToken, async (req, res) => {
+  try {
+    const testResults = await prisma.testResult.findMany({ where: { userId: req.user.userId } });
+    res.status(200).json(testResults);
+  } catch (error) {
+    console.error("Error fetching test results:", error);
+    res.status(500).json({ message: "Error fetching test results." });
+  }
+});
+
+app.post("/api/test-results", authenticateToken, async (req, res) => {
+  const { houseResult } = req.body; // Assuming the test result is a house.
+  if (!houseResult) {
+    return res.status(400).json({ message: "Test result is required." });
+  }
+
+  try {
+    const newTestResult = await prisma.testResult.create({
+      data: {
+        userId: req.user.userId,
+        houseResult,
+      },
+    });
+    res.status(201).json({ message: "Test result saved successfully!", testResult: newTestResult });
+  } catch (error) {
+    console.error("Error saving test result:", error);
+    res.status(500).json({ message: "Error saving test result." });
+  }
+});
+
 
 // Start server
 const PORT = process.env.PORT || 3000;

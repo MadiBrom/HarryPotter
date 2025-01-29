@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { getUser } from "../API/api";
+import { getUser, fetchTestResults } from "../API/api";
 
-const Profile = ({ testResults }) => {
+const Profile = () => {
   const [userData, setUserData] = useState(null);
+  const [testResults, setTestResults] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -20,9 +21,15 @@ const Profile = ({ testResults }) => {
         } else {
           setUserData(user);
         }
+
+        // Fetching test results for the user after getting the user data
+        const results = await fetchTestResults(token);
+        if (results) {
+          setTestResults(results);
+        }
       } catch (err) {
-        setError("Failed to fetch user data. Please try again.");
-        console.error("Error fetching user data:", err);
+        setError("Failed to fetch user data or test results. Please try again.");
+        console.error("Error:", err);
       }
     };
 
@@ -50,7 +57,6 @@ const Profile = ({ testResults }) => {
         <div>
           <h2>Your Test Results</h2>
           <p>Most Likely House: {testResults.houseResult}</p>
-          {/* Optionally, display more detailed answers */}
         </div>
       )}
     </div>

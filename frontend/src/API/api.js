@@ -117,20 +117,19 @@ export const logoutUser = async (token) => {
     throw error;
   }
 };
+// Save test results
 export const saveTestResults = async (token, results) => {
   try {
-    const response = await fetch(`${api_url}/test-results`, {
+    const response = await fetch(`${API_URL}/test-results`, {
       method: "POST",
-      headers: {
+      headers: { 
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(results),
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to save test results.");
-    }
+    if (!response.ok) return handleErrorResponse(response);
 
     const data = await response.json();
     console.log("Test results saved:", data);
@@ -139,21 +138,17 @@ export const saveTestResults = async (token, results) => {
   }
 };
 
+// Fetch test results
 export const fetchTestResults = async (token) => {
   try {
-    const response = await fetch(`${api_url}/test-results`, {
+    const response = await fetch(`${API_URL}/test-results`, {
       method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch test results.");
-    }
+    if (!response.ok) return handleErrorResponse(response);
 
-    const data = await response.json();
-    return data; // Return the fetched data so it can be handled elsewhere
+    return await response.json();
   } catch (error) {
     console.error("Error fetching test results:", error);
   }
