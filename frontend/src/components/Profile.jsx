@@ -15,6 +15,7 @@ const Profile = () => {
       }
 
       try {
+        // Fetch user data
         const user = await getUser(token);
         if (user.error) {
           setError(user.error);
@@ -53,11 +54,14 @@ const Profile = () => {
       <h1>Welcome, {userData.username}!</h1>
       <p>Email: {userData.email}</p>
 
-      {testResults && (
+      {testResults && testResults.length > 0 && (
         <div>
           <h2>Your Test Results</h2>
-          <p>Most Likely House: {testResults.houseResult}</p>
+          <p>Most Likely House: {testResults[0]?.houseResult}</p>
         </div>
+      )}
+      {(!testResults || testResults.length === 0) && (
+        <p>You have no test results yet.</p>
       )}
     </div>
   );

@@ -120,7 +120,7 @@ export const logoutUser = async (token) => {
 // Save test results
 export const saveTestResults = async (token, results) => {
   try {
-    const response = await fetch(`${API_URL}/test-results`, {
+    const response = await fetch(`${api_url}/test-results`, {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
@@ -141,7 +141,7 @@ export const saveTestResults = async (token, results) => {
 // Fetch test results
 export const fetchTestResults = async (token) => {
   try {
-    const response = await fetch(`${API_URL}/test-results`, {
+    const response = await fetch(`${api_url}/test-results`, {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     });
