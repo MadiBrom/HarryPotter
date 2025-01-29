@@ -85,20 +85,28 @@ export const getUser = async (token) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // Ensure token is passed in headers
+        Authorization: `Bearer ${token}`, // Token passed to headers
       },
     });
-        console.log("Token passed to getUser:", token);
+
+    console.log("Token passed to getUser:", token);
+
     if (!response.ok) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
 
-    return await response.json();
+    const userData = await response.json();
+
+    // Log and check user data
+    console.log("User Data:", userData);
+
+    return userData;
   } catch (error) {
     console.error("Error in getUser:", error);
     return { error: error.message };
   }
 };
+
 export const logoutUser = async (token) => {
   try {
     const response = await fetch(`${api_url}/auth/logout`, {

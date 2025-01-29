@@ -19,6 +19,7 @@ function App() {
     email: "",
     password: "",
   });
+console.log(testResults);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -141,13 +142,6 @@ function App() {
             element={
               <Profile
                 testResults={testResults}
-                user={user}
-                formData={formData}
-                email={email}
-                setEmail={setEmail}
-                password={password}
-                setPassword={setPassword}
-                setFormData={setFormData}
               />
             }
           />

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { getUser, fetchTestResults } from "../API/api";
 
-const Profile = () => {
+const Profile = ({testResults}) => {
   const [userData, setUserData] = useState(null);
-  const [testResults, setTestResults] = useState(null);
   const [error, setError] = useState("");
+console.log(testResults);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -15,27 +15,21 @@ const Profile = () => {
       }
 
       try {
-        // Fetch user data
         const user = await getUser(token);
         if (user.error) {
           setError(user.error);
         } else {
           setUserData(user);
         }
-
-        // Fetching test results for the user after getting the user data
-        const results = await fetchTestResults(token);
-        if (results) {
-          setTestResults(results);
-        }
       } catch (err) {
-        setError("Failed to fetch user data or test results. Please try again.");
+        setError("Failed to fetch user data. Please try again.");
         console.error("Error:", err);
       }
     };
 
     fetchUserData();
   }, []);
+
 
   if (error) {
     return (
@@ -53,18 +47,16 @@ const Profile = () => {
     <div>
       <h1>Welcome, {userData.username}!</h1>
       <p>Email: {userData.email}</p>
-
-      {testResults && testResults.length > 0 && (
+          <h2>Your House Result</h2>
+      {testResults && (
         <div>
-          <h2>Your Test Results</h2>
-          <p>Most Likely House: {testResults[0]?.houseResult}</p>
+
+          <p>You belong to: {testResults.houseResult}</p>
         </div>
-      )}
-      {(!testResults || testResults.length === 0) && (
-        <p>You have no test results yet.</p>
       )}
     </div>
   );
 };
+
 
 export default Profile;

@@ -164,7 +164,7 @@ const Modal = ({ houseResult, onClose }) => {
   );
 };
 
-const Test = ({ onSubmit, token }) => { // Add token as a prop
+const Test = ({ onSubmit, token }) => {
   const [answers, setAnswers] = useState({});
   const [houseResult, setHouseResult] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -206,6 +206,7 @@ const Test = ({ onSubmit, token }) => { // Add token as a prop
         },
       },
     }));
+    console.log(`Answer for ${house} - ${trait} - ${question}:`, answer); // Debugging log
   };
 
   const calculateHouse = () => {
@@ -216,6 +217,9 @@ const Test = ({ onSubmit, token }) => { // Add token as a prop
       Slytherin: 0,
     };
   
+    // Log answers before calculating scores
+    console.log('Answers:', answers);
+  
     // Iterate through the answers and sum up scores
     Object.entries(answers).forEach(([house, traits]) => {
       Object.entries(traits).forEach(([trait, questions]) => {
@@ -225,25 +229,34 @@ const Test = ({ onSubmit, token }) => { // Add token as a prop
       });
     });
   
+    // Log house scores after calculation
+    console.log('House Scores:', houseScores);
+  
     // Determine house with the highest score
     const maxScoreHouse = Object.keys(houseScores).reduce((maxHouse, currentHouse) =>
       houseScores[currentHouse] > houseScores[maxHouse] ? currentHouse : maxHouse
     );
   
-    console.log("House Scores:", houseScores); // Debugging output
-    console.log("Selected House:", maxScoreHouse);
+    console.log('Max House:', maxScoreHouse); // Log the result
   
     setHouseResult(maxScoreHouse);
     onSubmit({
       houseResult: maxScoreHouse,
       answers: answers,
     });
-
+  
     // Save the results to the API
     if (token) {
+      console.log('Saving test results to API...');
       saveTestResults(token, {
         houseResult: maxScoreHouse,
         answers: answers,
+      })
+      .then(response => {
+        console.log("Test results saved successfully:", response);
+      })
+      .catch(error => {
+        console.error("Error saving test results:", error);
       });
     }
   };
