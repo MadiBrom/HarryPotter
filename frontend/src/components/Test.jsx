@@ -151,8 +151,19 @@ const traits = {
     ]
   }
 };
+const Modal = ({ houseResult, onClose }) => {
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <h2>Congratulations!</h2>
+        <p>You belong to <strong>{houseResult}</strong>!</p>
+        <button onClick={onClose}>Close</button>
+      </div>
+    </div>
+  );
+};
 
-const Test = ({onSubmit}) => {
+const Test = ({ onSubmit }) => {
   const [answers, setAnswers] = useState({});
   const [houseResult, setHouseResult] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -203,25 +214,31 @@ const Test = ({onSubmit}) => {
       Hufflepuff: 0,
       Slytherin: 0,
     };
-
+  
+    // Iterate through the answers and sum up scores
     Object.entries(answers).forEach(([house, traits]) => {
       Object.entries(traits).forEach(([trait, questions]) => {
         Object.entries(questions).forEach(([question, answer]) => {
-          houseScores[house] += answer;
+          houseScores[house] += answer || 0; // Ensure it defaults to 0 if undefined
         });
       });
     });
-
+  
+    // Determine house with the highest score
     const maxScoreHouse = Object.keys(houseScores).reduce((maxHouse, currentHouse) =>
       houseScores[currentHouse] > houseScores[maxHouse] ? currentHouse : maxHouse
     );
-
+  
+    console.log("House Scores:", houseScores); // Debugging output
+    console.log("Selected House:", maxScoreHouse);
+  
     setHouseResult(maxScoreHouse);
     onSubmit({
       houseResult: maxScoreHouse,
       answers: answers,
     });
   };
+  
 
   const changePage = (direction) => {
     if (direction === 'next' && currentPage < Math.ceil(shuffledQuestions.length / questionsPerPage)) {
@@ -250,13 +267,14 @@ const Test = ({onSubmit}) => {
           <h3>{question}</h3>
           <label className="range-label">Strongly Disagree</label>
           <input
-            type="range"
-            className="range-input"
-            min="-2"
-            max="2"
-            value={answers[house]?.[trait]?.[question] || 0}
-            onChange={(e) => handleAnswerChange(house, trait, question, Number(e.target.value))}
-          />
+  type="range"
+  className="range-input"
+  min="-2"
+  max="2"
+  value={answers[house]?.[trait]?.[question] ?? 0} // Ensure a default value of 0
+  onChange={(e) => handleAnswerChange(house, trait, question, Number(e.target.value))}
+/>
+
           <label className="range-label">Strongly Agree</label>
         </div>
       ))}
@@ -274,11 +292,7 @@ const Test = ({onSubmit}) => {
       <br />
       <button className="submit-btn" onClick={calculateHouse}>Submit</button>
 
-      {houseResult && (
-        <div className="house-result">
-          <h2>Your Most Likely House: {houseResult}</h2>
-        </div>
-      )}
+      {houseResult && <Modal houseResult={houseResult} onClose={() => setHouseResult(null)} />}
     </div>
   );
 };

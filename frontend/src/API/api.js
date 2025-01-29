@@ -99,3 +99,62 @@ export const getUser = async (token) => {
     return { error: error.message };
   }
 };
+export const logoutUser = async (token) => {
+  try {
+    const response = await fetch(`${api_url}/auth/logout`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to logout");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error during logout:", error.message);
+    throw error;
+  }
+};
+export const saveTestResults = async (token, results) => {
+  try {
+    const response = await fetch(`${api_url}/test-results`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify(results),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to save test results.");
+    }
+
+    const data = await response.json();
+    console.log("Test results saved:", data);
+  } catch (error) {
+    console.error("Error saving test results:", error);
+  }
+};
+
+export const fetchTestResults = async (token) => {
+  try {
+    const response = await fetch(`${api_url}/test-results`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch test results.");
+    }
+
+    const data = await response.json();
+    return data; // Return the fetched data so it can be handled elsewhere
+  } catch (error) {
+    console.error("Error fetching test results:", error);
+  }
+};
