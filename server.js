@@ -79,34 +79,20 @@ app.post('/api/auth/logout', (req, res) => {
 });
 
 
-// Protected route to get user data with test results
+// Protected route to get user data
 app.get("/api/user", authenticateToken, async (req, res) => {
   try {
-    // Fetch user and include associated test results in the response
-    const user = await prisma.user.findUnique({
-      where: { id: req.user.userId },
-      include: {
-        testResults: true,  // Assuming 'testResults' is the related field in your Prisma model
-      },
-    });
-
+    const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
 
-    // Return the user data along with test results
-    res.status(200).json({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      testResults: user.testResults,  // Add test results to the response
-    });
+    res.status(200).json({ id: user.id, username: user.username, email: user.email });
   } catch (error) {
     console.error("Error fetching user data:", error);
     res.status(500).json({ message: "Error fetching user data." });
   }
 });
-
 
 app.get("/api/test-results", authenticateToken, async (req, res) => {
   try {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Test.css';
-import { saveTestResults } from '../API/api';
+import { saveTestResults, getUser } from '../API/api';
 
 const traits = {
   Gryffindor: {
@@ -152,22 +152,29 @@ const traits = {
     ]
   }
 };
-const Modal = ({ houseResult, onClose }) => {
+const Modal = ({ houseResult, userData, onClose }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
         <h2>Congratulations!</h2>
-        <p>You belong to <strong>{houseResult}</strong>!</p>
+        <p>You belong to: </p>
+        {userData && (
+          <div>
+            <p><strong>House Results:</strong> {userData.houseResult}</p>
+          </div>
+        )}
         <button onClick={onClose}>Close</button>
       </div>
     </div>
   );
 };
 
-const Test = ({ onSubmit, token }) => {
+
+const Test = ({ token }) => {
   const [answers, setAnswers] = useState({});
   const [houseResult, setHouseResult] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [userData, setUserData] = useState(null);  // State to store fetched user data
   const questionsPerPage = 20;
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
 
@@ -206,21 +213,16 @@ const Test = ({ onSubmit, token }) => {
         },
       },
     }));
-    console.log(`Answer for ${house} - ${trait} - ${question}:`, answer); // Debugging log
   };
 
-  const calculateHouse = () => {
+  const calculateHouse = async () => {
     const houseScores = {
       Gryffindor: 0,
       Ravenclaw: 0,
       Hufflepuff: 0,
       Slytherin: 0,
     };
-  
-    // Log answers before calculating scores
-    console.log('Answers:', answers);
-  
-    // Iterate through the answers and sum up scores
+
     Object.entries(answers).forEach(([house, traits]) => {
       Object.entries(traits).forEach(([trait, questions]) => {
         Object.entries(questions).forEach(([question, answer]) => {
@@ -228,37 +230,26 @@ const Test = ({ onSubmit, token }) => {
         });
       });
     });
-  
-    // Log house scores after calculation
-    console.log('House Scores:', houseScores);
-  
-    // Determine house with the highest score
+
     const maxScoreHouse = Object.keys(houseScores).reduce((maxHouse, currentHouse) =>
       houseScores[currentHouse] > houseScores[maxHouse] ? currentHouse : maxHouse
     );
-  
-    console.log('Max House:', maxScoreHouse); // Log the result
-  
+
     setHouseResult(maxScoreHouse);
-    onSubmit({
+
+    // Fetch user data from the API
+    try {
+      const userData = await getUser(token);
+      setUserData(userData);  // Set the fetched user data
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+
+    // Save test results to API
+    await saveTestResults(token, {
       houseResult: maxScoreHouse,
       answers: answers,
     });
-  
-    // Save the results to the API
-    if (token) {
-      console.log('Saving test results to API...');
-      saveTestResults(token, {
-        houseResult: maxScoreHouse,
-        answers: answers,
-      })
-      .then(response => {
-        console.log("Test results saved successfully:", response);
-      })
-      .catch(error => {
-        console.error("Error saving test results:", error);
-      });
-    }
   };
 
   const changePage = (direction) => {
@@ -312,7 +303,7 @@ const Test = ({ onSubmit, token }) => {
       <br />
       <button className="submit-btn" onClick={calculateHouse}>Submit</button>
 
-      {houseResult && <Modal houseResult={houseResult} onClose={() => setHouseResult(null)} />}
+      {houseResult && <Modal houseResult={houseResult} userData={userData} onClose={() => setHouseResult(null)} />}
     </div>
   );
 };

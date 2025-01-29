@@ -10,18 +10,15 @@ import Profile from "./components/Profile";
 import Test from "./components/Test";
 
 function App() {
-  const [testResults, setTestResults] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [user, setUser] = useState(null); // Global user state
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-  });
-console.log(testResults);
+
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setToken(localStorage.getItem("token"));
+  }, [isLoggedIn]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -43,35 +40,6 @@ console.log(testResults);
     }
   }, []);
 
-  const handleTestSubmit = (results) => {
-    setTestResults(results); // Store results in state
-    localStorage.setItem("testResults", JSON.stringify(results)); // Optionally save to localStorage
-  };
-  
-  useEffect(() => {
-    const savedTestResults = localStorage.getItem('testResults');
-    if (savedTestResults) {
-      setTestResults(JSON.parse(savedTestResults)); // Load from localStorage
-    } else {
-      console.log('No test results found in localStorage.');
-    }
-  }, []);
-  
-  
-
-  const handleLogin = async (email, password) => {
-    try {
-      const { token, user } = await loginUser({ email, password });
-      localStorage.setItem("token", token);  // Store the token
-      setUser(user);  // Set user state after login
-      setIsLoggedIn(true);  // Update login state to true
-  
-      // Ensure the app reacts to the new login state
-      // No need for a page reload, React will re-render the components
-    } catch (error) {
-      console.error("Login failed:", error.message);
-    }
-  };
   
   const handleLogout = async () => {
     const token = localStorage.getItem("token");
@@ -116,9 +84,6 @@ console.log(testResults);
             path="/register"
             element={
               <Register
-                formData={formData}
-                setFormData={setFormData}
-                onLogin={handleLogin}
                 setUser={setUser}
               />
             }
@@ -127,13 +92,6 @@ console.log(testResults);
             path="/login"
             element={
               <Login
-                formData={formData}
-                setUser={setUser}
-                onLogin={handleLogin}
-                email={email}
-                setEmail={setEmail}
-                password={password}
-                setPassword={setPassword}
               />
             }
           />
@@ -141,12 +99,12 @@ console.log(testResults);
             path="/profile"
             element={
               <Profile
-                testResults={testResults}
+              
               />
             }
           />
           <Route path="/houses" element={<Houses />} />
-          <Route path="/test" element={<Test onSubmit={handleTestSubmit} />} />
+          <Route path="/test" element={<Test token={token}/>} />
         </Routes>
       </div>
     </Router>
