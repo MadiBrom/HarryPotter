@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Test.css';
-import { saveTestResults, getUser } from '../API/api';
+import { saveTestResults, fetchTestResults, getUser } from '../API/api';
 
 const traits = {
   Gryffindor: {
@@ -157,11 +157,13 @@ const Modal = ({ houseResult, userData, onClose }) => {
     <div className="modal-overlay">
       <div className="modal-content">
         <h2>Congratulations!</h2>
-        <p>You belong to: </p>
-        {userData && (
-          <div>
-            <p><strong>House Results:</strong> {userData.houseResult}</p>
-          </div>
+        <p>You belong to:</p>
+        {houseResult ? (
+          <p><strong>House Result:</strong> {houseResult}</p>
+        ) : userData?.testResults?.length > 0 ? (
+          <p><strong>House Result:</strong> {userData.testResults[0].houseResult}</p>
+        ) : (
+          <p>No test results found.</p>
         )}
         <button onClick={onClose}>Close</button>
       </div>
@@ -170,13 +172,16 @@ const Modal = ({ houseResult, userData, onClose }) => {
 };
 
 
-const Test = ({ token }) => {
+
+const Test = ({ token, refreshProfile  }) => {
   const [answers, setAnswers] = useState({});
   const [houseResult, setHouseResult] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [userData, setUserData] = useState(null);
   const questionsPerPage = 20;
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false); // Track the modal state
+
 
   useEffect(() => {
     const allQuestions = Object.entries(traits).flatMap(([house, qualities]) =>
@@ -200,6 +205,16 @@ const Test = ({ token }) => {
     const startIndex = (currentPage - 1) * questionsPerPage;
     const endIndex = currentPage * questionsPerPage;
     return shuffledQuestions.slice(startIndex, endIndex);
+  };
+
+  const handleClose = async () => {
+    // Close the modal
+    setModalOpen(false);
+
+    // Trigger refreshProfile to refresh the profile
+    if (refreshProfile) {
+      refreshProfile();
+    }
   };
 
   const handleAnswerChange = (house, trait, question, answer) => {
@@ -244,12 +259,12 @@ const Test = ({ token }) => {
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
-
     // Save test results to API
     await saveTestResults(token, {
       houseResult: maxScoreHouse,
       answers: answers,
     });
+    // Save test results to API
     console.log("Saving test results...", {
       houseResult: maxScoreHouse,
       answers: answers,
@@ -262,6 +277,11 @@ const Test = ({ token }) => {
       });
     
       console.log("Test results saved successfully:", response);
+      if (refreshProfile) {
+        refreshProfile(); 
+      } else {
+        console.error("refreshProfile is not a function");
+      }
     } catch (error) {
       console.error("Error saving test results:", error);
     }
@@ -276,7 +296,7 @@ const Test = ({ token }) => {
       setCurrentPage((prevPage) => prevPage - 1);
     }
   };
-console.log(houseResult);
+
 
   return (
     <div className="test-container">
@@ -321,7 +341,7 @@ console.log(houseResult);
       <br />
       <button className="submit-btn" onClick={calculateHouse}>Submit</button>
 
-      {houseResult && <Modal houseResult={houseResult} userData={userData} onClose={() => setHouseResult(null)} />}
+      {houseResult && <Modal houseResult={houseResult} userData={userData} onClose={handleClose} />}
     </div>
   );
 };

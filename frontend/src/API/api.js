@@ -99,6 +99,7 @@ export const getUser = async (token) => {
     return { error: error.message };
   }
 };
+
 export const logoutUser = async (token) => {
   try {
     const response = await fetch(`${api_url}/auth/logout`, {

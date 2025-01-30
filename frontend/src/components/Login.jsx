@@ -21,6 +21,8 @@ const Login = () => {
 
       // Save token to localStorage
       localStorage.setItem("token", data.token);
+      console.log(data.token);
+      
 
       // Show success message and navigate to /profile
       setSuccess("Login successful! Redirecting...");

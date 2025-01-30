@@ -12,33 +12,33 @@ import Test from "./components/Test";
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [user, setUser] = useState(null); // Global user state
-
-
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     setToken(localStorage.getItem("token"));
   }, [isLoggedIn]);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+  const fetchUser = async () => {
     if (token) {
-      const fetchUser = async () => {
-        try {
-          const userData = await getUser(token); // Fetch user data
-          if (userData && userData.username) {
-            setUser(userData); // Set user data if token is valid
-            setIsLoggedIn(true); // Update login state to true
-          }
-        } catch (error) {
-          console.error("Error fetching user:", error);
-          setIsLoggedIn(false);
+      try {
+        const userData = await getUser(token);
+        if (userData && userData.username) {
+          setUser(userData);
+          setIsLoggedIn(true);
         }
-      };
-
-      fetchUser();
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        setIsLoggedIn(false);
+      }
     }
-  }, []);
+  };
+  useEffect(() => {
+    fetchUser();
+  }, [token]);
+
+  const refreshProfile = () => {
+    fetchUser();
+  };
 
   
   const handleLogout = async () => {
@@ -56,23 +56,6 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const fetchUser = async () => {
-        try {
-          const userData = await getUser(token);
-          if (userData && userData.username) {
-            setUser(userData);
-            setIsLoggedIn(true);
-          }
-        } catch (error) {
-          setIsLoggedIn(false);
-        }
-      };
-      fetchUser();
-    }
-  }, []);
 
   return (
     <Router>
@@ -99,12 +82,13 @@ function App() {
             path="/profile"
             element={
               <Profile
-              
+              token={token}
+              refreshProfile={refreshProfile}
               />
             }
           />
           <Route path="/houses" element={<Houses />} />
-          <Route path="/test" element={<Test token={token}/>} />
+          <Route path="/test" element={<Test token={token} refreshProfile={refreshProfile}/>} />
         </Routes>
       </div>
     </Router>

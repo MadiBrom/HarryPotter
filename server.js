@@ -56,23 +56,34 @@ app.post("/api/auth/register", async (req, res) => {
 // Login route
 app.post("/api/auth/login", async (req, res) => {
   const { email, password } = req.body;
+
+  // Input validation
   if (!email || !password) {
     return res.status(400).json({ message: "Email and password are required." });
   }
 
   try {
+    // Find user by email
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: "Invalid login credentials." });
     }
 
+    // Generate JWT token
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "1h" });
-    res.status(200).json({ message: "Login successful.", token, user: { id: user.id, username: user.username, email: user.email } });
+
+    // Send response with token and user data
+    res.status(200).json({
+      message: "Login successful.",
+      token,
+      user: { id: user.id, username: user.username, email: user.email }
+    });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).json({ message: "Error during login.", error: error.message });
   }
 });
+
 app.post('/api/auth/logout', (req, res) => {
   // Add logout logic here, like clearing the session or invalidating the token.
   res.status(200).json({ message: 'Logged out successfully' });
@@ -80,14 +91,24 @@ app.post('/api/auth/logout', (req, res) => {
 
 
 // Protected route to get user data
+// Protected route to get user data with test results
 app.get("/api/user", authenticateToken, async (req, res) => {
   try {
-    const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.userId },
+      include: { testResults: true }, // Include test results in response
+    });
+
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
 
-    res.status(200).json({ id: user.id, username: user.username, email: user.email });
+    res.status(200).json({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      testResults: user.testResults, // Return test results with user data
+    });
   } catch (error) {
     console.error("Error fetching user data:", error);
     res.status(500).json({ message: "Error fetching user data." });
