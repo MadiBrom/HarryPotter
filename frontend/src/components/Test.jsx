@@ -174,7 +174,7 @@ const Test = ({ token }) => {
   const [answers, setAnswers] = useState({});
   const [houseResult, setHouseResult] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [userData, setUserData] = useState(null);  // State to store fetched user data
+  const [userData, setUserData] = useState(null);
   const questionsPerPage = 20;
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
 
@@ -250,7 +250,24 @@ const Test = ({ token }) => {
       houseResult: maxScoreHouse,
       answers: answers,
     });
+    console.log("Saving test results...", {
+      houseResult: maxScoreHouse,
+      answers: answers,
+    });
+    
+    try {
+      const response = await saveTestResults(token, {
+        houseResult: maxScoreHouse,
+        answers: answers,
+      });
+    
+      console.log("Test results saved successfully:", response);
+    } catch (error) {
+      console.error("Error saving test results:", error);
+    }
+    
   };
+  
 
   const changePage = (direction) => {
     if (direction === 'next' && currentPage < Math.ceil(shuffledQuestions.length / questionsPerPage)) {
@@ -259,6 +276,7 @@ const Test = ({ token }) => {
       setCurrentPage((prevPage) => prevPage - 1);
     }
   };
+console.log(houseResult);
 
   return (
     <div className="test-container">
@@ -307,5 +325,6 @@ const Test = ({ token }) => {
     </div>
   );
 };
+
 
 export default Test;

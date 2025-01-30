@@ -117,24 +117,28 @@ export const logoutUser = async (token) => {
     throw error;
   }
 };
-// Save test results
-export const saveTestResults = async (token, results) => {
+
+export const saveTestResults = async (token, testData) => {
   try {
-    const response = await fetch(`${api_url}/test-results`, {
+    const response = await fetch(`${api_url}/saveTestResults`, {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(results),
+      body: JSON.stringify(testData),
     });
 
-    if (!response.ok) return handleErrorResponse(response);
+    const text = await response.text(); // Read response as text first
+    console.log("Raw Response:", text);
 
-    const data = await response.json();
+    const data = JSON.parse(text); // Parse JSON manually
     console.log("Test results saved:", data);
+
+    return data;
   } catch (error) {
     console.error("Error saving test results:", error);
+    throw error;
   }
 };
 
