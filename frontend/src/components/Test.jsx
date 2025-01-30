@@ -152,15 +152,13 @@ const traits = {
     ]
   }
 };
-const Modal = ({ houseResult, userData, onClose }) => {
+const Modal = ({ userData, onClose }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
         <h2>Congratulations!</h2>
         <p>You belong to:</p>
-        {houseResult ? (
-          <p><strong>House Result:</strong> {houseResult}</p>
-        ) : userData?.testResults?.length > 0 ? (
+        {userData?.testResults?.length > 0 ? (
           <p><strong>House Result:</strong> {userData.testResults[0].houseResult}</p>
         ) : (
           <p>No test results found.</p>
@@ -171,9 +169,7 @@ const Modal = ({ houseResult, userData, onClose }) => {
   );
 };
 
-
-
-const Test = ({ token, refreshProfile  }) => {
+const Test = ({ token, refreshProfile }) => {
   const [answers, setAnswers] = useState({});
   const [houseResult, setHouseResult] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -181,7 +177,6 @@ const Test = ({ token, refreshProfile  }) => {
   const questionsPerPage = 20;
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
   const [modalOpen, setModalOpen] = useState(false); // Track the modal state
-
 
   useEffect(() => {
     const allQuestions = Object.entries(traits).flatMap(([house, qualities]) =>
@@ -259,35 +254,26 @@ const Test = ({ token, refreshProfile  }) => {
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
+
     // Save test results to API
-    await saveTestResults(token, {
-      houseResult: maxScoreHouse,
-      answers: answers,
-    });
-    // Save test results to API
-    console.log("Saving test results...", {
-      houseResult: maxScoreHouse,
-      answers: answers,
-    });
-    
     try {
-      const response = await saveTestResults(token, {
+      await saveTestResults(token, {
         houseResult: maxScoreHouse,
         answers: answers,
       });
-    
-      console.log("Test results saved successfully:", response);
+
+      console.log("Test results saved successfully.");
+      
       if (refreshProfile) {
         refreshProfile(); 
-      } else {
-        console.error("refreshProfile is not a function");
       }
+
+      // Open the modal after saving test results
+      setModalOpen(true);
     } catch (error) {
       console.error("Error saving test results:", error);
     }
-    
   };
-  
 
   const changePage = (direction) => {
     if (direction === 'next' && currentPage < Math.ceil(shuffledQuestions.length / questionsPerPage)) {
@@ -296,7 +282,6 @@ const Test = ({ token, refreshProfile  }) => {
       setCurrentPage((prevPage) => prevPage - 1);
     }
   };
-
 
   return (
     <div className="test-container">
@@ -341,10 +326,10 @@ const Test = ({ token, refreshProfile  }) => {
       <br />
       <button className="submit-btn" onClick={calculateHouse}>Submit</button>
 
-      {houseResult && <Modal houseResult={houseResult} userData={userData} onClose={handleClose} />}
+      {/* Render the Modal if modalOpen is true */}
+      {modalOpen && <Modal houseResult={houseResult} userData={userData} onClose={handleClose} />}
     </div>
   );
 };
-
 
 export default Test;
