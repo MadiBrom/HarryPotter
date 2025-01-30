@@ -104,10 +104,10 @@ app.get("/api/test-results", authenticateToken, async (req, res) => {
   }
 });
 
-app.post("/api/test-results", authenticateToken, async (req, res) => {
-  const { houseResult } = req.body; // Assuming the test result is a house.
-  if (!houseResult) {
-    return res.status(400).json({ message: "Test result is required." });
+app.post("/api/saveTestResults", authenticateToken, async (req, res) => {
+  const { houseResult, answers } = req.body;
+  if (!houseResult || !answers) {
+    return res.status(400).json({ message: "Test result and answers are required." });
   }
 
   try {
@@ -115,15 +115,16 @@ app.post("/api/test-results", authenticateToken, async (req, res) => {
       data: {
         userId: req.user.userId,
         houseResult,
+        answer: JSON.stringify(answers), // Store answers as JSON
       },
     });
+
     res.status(201).json({ message: "Test result saved successfully!", testResult: newTestResult });
   } catch (error) {
     console.error("Error saving test result:", error);
     res.status(500).json({ message: "Error saving test result." });
   }
 });
-
 
 // Start server
 const PORT = process.env.PORT || 3000;
