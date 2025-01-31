@@ -10,19 +10,21 @@ import Profile from "./components/Profile";
 import Test from "./components/Test";
 
 function App() {
-  const [token, setToken] = useState("");
-  const [user, setUser] = useState(null); // Global user state
+  const [token, setToken] = useState("");  // Initially empty
+  const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  // Fetch user only when there's a token
   useEffect(() => {
+    console.log("Current token state in App.js:", token); // Debugging
     if (token) {
-      fetchUser();  // Fetch user only when there's a valid token
+      fetchUser();
     }
   }, [token]);
-  
+
   const fetchUser = async () => {
-    if (!token) return; // Prevent fetching when there's no token
-  
+    if (!token) return;  // Ensure we only call if there's a valid token
+
     try {
       const userData = await getUser(token);
       if (userData && userData.username) {
@@ -37,30 +39,21 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    fetchUser();
-  }, [token]);
-
   const refreshProfile = () => {
     fetchUser();
   };
 
-  
   const handleLogout = async () => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        await logoutUser(token);
-        localStorage.removeItem("token"); // Clear token from localStorage
-        localStorage.removeItem("testResults"); // Clear test results from localStorage
-        setUser(null);
-        setIsLoggedIn(false);
-      } catch (error) {
-        console.error("Logout failed:", error.message);
-      }
+    if (!token) return; // Prevent unnecessary logout calls
+    try {
+      await logoutUser(token);
+      setUser(null);
+      setIsLoggedIn(false);
+      setToken(""); // Clear token from state
+    } catch (error) {
+      console.error("Logout failed:", error.message);
     }
   };
-
 
   return (
     <Router>
@@ -68,32 +61,11 @@ function App() {
       <div>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route
-            path="/register"
-            element={
-              <Register
-              setToken={setToken}
-              token={token}
-                setUser={setUser}
-              />
-            }
-          />
-          <Route
-            path="/login"
-            element={
-              <Login
-              setToken={setToken}
-              />
-            }
-          />
+          <Route path="/register" element={<Register setToken={setToken} setUser={setUser} />} />
+          <Route path="/login" element={<Login setToken={setToken} />} />
           <Route
             path="/profile"
-            element={
-              <Profile
-              token={token}
-              refreshProfile={refreshProfile}
-              />
-            }
+            element={<Profile token={token} refreshProfile={refreshProfile} />}
           />
           <Route path="/houses" element={<Houses />} />
           <Route path="/test" element={<Test token={token} refreshProfile={refreshProfile}/>} />

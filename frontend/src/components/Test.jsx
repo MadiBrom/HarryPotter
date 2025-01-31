@@ -256,12 +256,8 @@ const Test = ({ token, refreshProfile }) => {
         answers: answers,
       };
   
-      // Save or update test results
-      if (userData?.testResults?.length > 0) {
-        await updateTestResults(token, testResults);
-      } else {
-        await saveTestResults(token, testResults);
-      }
+      // Always save new test results instead of updating
+      await saveTestResults(token, testResults);
   
       // Refresh profile
       if (refreshProfile) {
@@ -275,7 +271,6 @@ const Test = ({ token, refreshProfile }) => {
       console.error("Error handling test results:", error);
     }
   };
-  
   
 
   const changePage = (direction) => {
