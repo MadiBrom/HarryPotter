@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { getUser } from "../API/api";
 
-const Profile = ({ token, refreshProfile }) => {
+const Profile = ({ token }) => {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);  // **Trigger state**
 
   
   const fetchUserData = async () => {
-    if (!token) {
-      setError("Authentication token is missing. Please log in.");
-      return;
-    }
-
     try {
       const user = await getUser(token);
       if (user.error) {
@@ -28,7 +23,7 @@ const Profile = ({ token, refreshProfile }) => {
 
   useEffect(() => {
     fetchUserData();
-  }, [token, refreshTrigger]);  // **Re-run when refreshTrigger changes**
+  }, [token, refreshTrigger]);
 
 
   if (error) {
@@ -48,7 +43,6 @@ const Profile = ({ token, refreshProfile }) => {
       <p>
         You belong to: {userData.testResults?.[0]?.houseResult || "No test taken yet"}
       </p>
-      <button onClick={refreshProfile}>Refresh</button>
     </div>
   );
 };

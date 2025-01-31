@@ -9,8 +9,12 @@ const prisma = new PrismaClient();
 const app = express();
 
 // Middleware
-app.use(cors({ origin: "http://localhost:5173", methods: ["GET", "POST"] }));
 app.use(express.json());
+app.use(cors({
+  origin: "http://localhost:5173", // Allow frontend to make requests
+  methods: ["GET", "POST", "PUT", "DELETE"] // Allow PUT and other methods
+}));
+
 
 // JWT secret
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -144,6 +148,64 @@ app.post("/api/saveTestResults", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Error saving test result:", error);
     res.status(500).json({ message: "Error saving test result." });
+  }
+});
+
+app.put('/api/test-results/:userId', authenticateToken, async (req, res) => {
+  const { userId } = req.params;  // User ID from URL
+  if (userId !== req.user.userId) {  // Ensure the userId matches the authenticated user's ID
+    return res.status(403).json({ message: "Unauthorized to update other user's test results." });
+  }
+
+  const { houseResult, answers } = req.body;
+
+  if (!houseResult || !answers) {
+    return res.status(400).json({ message: "House result and answers are required." });
+  }
+
+  try {
+    // Find the user by ID
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { testResults: true },  // Include test results in case you need to modify or replace them
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Check if there are existing test results for the user
+    const existingTestResult = user.testResults.length > 0 ? user.testResults[0] : null;
+
+    let updatedTestResults;
+
+    if (existingTestResult) {
+      // If test results exist, update them
+      updatedTestResults = await prisma.testResult.update({
+        where: { id: existingTestResult.id },
+        data: {
+          houseResult,
+          answer: JSON.stringify(answers),  // Save answers as JSON
+        },
+      });
+    } else {
+      // If no test results exist, create a new one
+      updatedTestResults = await prisma.testResult.create({
+        data: {
+          userId,
+          houseResult,
+          answer: JSON.stringify(answers),
+        },
+      });
+    }
+
+    res.status(200).json({
+      message: "Test results updated successfully!",
+      testResult: updatedTestResults,
+    });
+  } catch (error) {
+    console.error("Error updating test results:", error);
+    res.status(500).json({ message: "Error updating test results." });
   }
 });
 

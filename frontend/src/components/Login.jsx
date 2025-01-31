@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { loginUser } from "../API/api"; // Ensure correct import
 
-const Login = () => {
+const Login = ({setToken}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -14,27 +14,28 @@ const Login = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
-
+  
     try {
-      // Pass email and password directly to loginUser
       const data = await loginUser({ email, password });
-
-      // Save token to localStorage
-      localStorage.setItem("token", data.token);
-      console.log(data.token);
-      
-
-      // Show success message and navigate to /profile
-      setSuccess("Login successful! Redirecting...");
-      setTimeout(() => {
-        navigate("/profile"); // Redirect to /profile
-      }, 1000);
+  
+      if (data.token) {
+        setToken(data.token); // Store token in state instead of localStorage
+        console.log("Token received:", data.token);
+  
+        // Show success message and navigate to /profile
+        setSuccess("Login successful! Redirecting...");
+        setTimeout(() => {
+          navigate("/profile");
+        }, 1000);
+      } else {
+        setError("Invalid credentials or missing token.");
+      }
     } catch (err) {
-      // Handle error and display error message
       setError(err.message || "Login failed. Please try again.");
       console.error("Login error:", err);
     }
   };
+  
 
   return (
     <div>

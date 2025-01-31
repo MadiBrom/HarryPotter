@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Test.css';
-import { saveTestResults, fetchTestResults, getUser } from '../API/api';
+import { saveTestResults, fetchTestResults, getUser, updateTestResults } from '../API/api';
 
 const traits = {
   Gryffindor: {
@@ -232,7 +232,8 @@ const Test = ({ token, refreshProfile }) => {
       Hufflepuff: 0,
       Slytherin: 0,
     };
-
+  
+    // Calculate the house scores from the answers
     Object.entries(answers).forEach(([house, traits]) => {
       Object.entries(traits).forEach(([trait, questions]) => {
         Object.entries(questions).forEach(([question, answer]) => {
@@ -240,13 +241,13 @@ const Test = ({ token, refreshProfile }) => {
         });
       });
     });
-
+  
     const maxScoreHouse = Object.keys(houseScores).reduce((maxHouse, currentHouse) =>
       houseScores[currentHouse] > houseScores[maxHouse] ? currentHouse : maxHouse
     );
-
+  
     setHouseResult(maxScoreHouse);
-
+  
     // Fetch user data from the API
     try {
       const userData = await getUser(token);
@@ -254,26 +255,37 @@ const Test = ({ token, refreshProfile }) => {
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
-
-    // Save test results to API
+  
+    // Save test results to the API
     try {
-      await saveTestResults(token, {
+      const testResults = {
         houseResult: maxScoreHouse,
         answers: answers,
-      });
-
-      console.log("Test results saved successfully.");
-      
-      if (refreshProfile) {
-        refreshProfile(); 
+      };
+  
+      // Check if test results already exist (assuming userData has existing test results)
+      if (userData?.testResults?.length > 0) {
+        // If the test already exists, update the test result
+        const updatedTestResults = await updateTestResults(token, testResults);
+        console.log("Test results updated successfully:", updatedTestResults);
+      } else {
+        // If no previous test results, create a new test result
+        const newTestResults = await saveTestResults(token, testResults);
+        console.log("Test results saved successfully:", newTestResults);
       }
-
+  
+      // Trigger a profile refresh after saving the results
+      if (refreshProfile) {
+        refreshProfile();
+      }
+  
       // Open the modal after saving test results
       setModalOpen(true);
     } catch (error) {
       console.error("Error saving test results:", error);
     }
   };
+  
 
   const changePage = (direction) => {
     if (direction === 'next' && currentPage < Math.ceil(shuffledQuestions.length / questionsPerPage)) {

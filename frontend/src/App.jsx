@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { loginUser, logoutUser, getUser } from "./API/api";
+import { logoutUser, getUser } from "./API/api";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Index from "./index";
+import Index from "./components/index";
 import Houses from "./components/Houses";
 import Navbar from "./components/Navbar";
 import Register from "./components/Register";
@@ -10,28 +10,33 @@ import Profile from "./components/Profile";
 import Test from "./components/Test";
 
 function App() {
-  const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState("");
   const [user, setUser] = useState(null); // Global user state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    setToken(localStorage.getItem("token"));
-  }, [isLoggedIn]);
-
-  const fetchUser = async () => {
     if (token) {
-      try {
-        const userData = await getUser(token);
-        if (userData && userData.username) {
-          setUser(userData);
-          setIsLoggedIn(true);
-        }
-      } catch (error) {
-        console.error("Error fetching user:", error);
+      fetchUser();  // Fetch user only when there's a valid token
+    }
+  }, [token]);
+  
+  const fetchUser = async () => {
+    if (!token) return; // Prevent fetching when there's no token
+  
+    try {
+      const userData = await getUser(token);
+      if (userData && userData.username) {
+        setUser(userData);
+        setIsLoggedIn(true);
+      } else {
         setIsLoggedIn(false);
       }
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      setIsLoggedIn(false);
     }
   };
+  
   useEffect(() => {
     fetchUser();
   }, [token]);
@@ -75,6 +80,7 @@ function App() {
             path="/login"
             element={
               <Login
+              setToken={setToken}
               />
             }
           />

@@ -72,23 +72,72 @@ export async function fetchHouses(id) {
     if (!response.ok) {
       throw new Error("Error fetching house");
     }
-    return await response.json();
+    const housesData= await response.json();
+    return housesData;
   } catch (error) {
     console.error("Error fetching the house:", error);
     throw error;
   }
 }
 
+export async function getHouses() {
+  try {
+    const response = await fetch(`${API_URL}/Houses`);
+    if (!response.ok) {
+      throw new Error("Error fetching house");
+    }
+    const housesData= await response.json();
+    return housesData;
+  } catch (error) {
+    console.error("Error fetching the house:", error);
+    throw error;
+  }
+}
+
+export async function getElixirs() {
+  try {
+    const response = await fetch(`${API_URL}/Elixirs`);
+    if (!response.ok) {
+      throw new Error("Error fetching house");
+    }
+    const housesData= await response.json();
+    return housesData;
+  } catch (error) {
+    console.error("Error fetching the house:", error);
+    throw error;
+  }
+}
+
+export const fetchSpells = async () => {
+  try {
+    const response = await fetch(`${API_URL}/Spells`);
+    if (!response.ok) {
+      throw new Error("Error fetching spells");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching spells:", error);
+    throw error;
+  }
+};
+
 export const getUser = async (token) => {
+  if (!token) {
+    console.error("No token provided to getUser");
+    return { error: "No token provided" };
+  }
+
   try {
     const response = await fetch(`${api_url}/user`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // Ensure token is passed in headers
+        Authorization: `Bearer ${token}`,
       },
     });
-        console.log("Token passed to getUser:", token);
+
+    console.log("Token passed to getUser:", token);
+
     if (!response.ok) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
@@ -99,6 +148,34 @@ export const getUser = async (token) => {
     return { error: error.message };
   }
 };
+
+
+export const updateTestResults = async (userId, houseResult, answers, token) => {
+  try {
+    const response = await fetch(`${api_url}/test-results/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`, // Include the JWT token in the Authorization header
+      },
+      body: JSON.stringify({
+        houseResult,
+        answers,
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("Test results updated:", data);
+    } else {
+      const errorData = await response.json();
+      console.error("Error updating test results:", errorData.message);
+    }
+  } catch (error) {
+    console.error("Error saving test results:", error);
+  }
+};
+
 
 export const logoutUser = async (token) => {
   try {
