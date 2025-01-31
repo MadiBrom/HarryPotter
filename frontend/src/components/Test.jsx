@@ -233,11 +233,11 @@ const Test = ({ token, refreshProfile }) => {
       Slytherin: 0,
     };
   
-    // Calculate the house scores from the answers
+    // Calculate house scores from answers
     Object.entries(answers).forEach(([house, traits]) => {
       Object.entries(traits).forEach(([trait, questions]) => {
         Object.entries(questions).forEach(([question, answer]) => {
-          houseScores[house] += answer || 0; // Ensure it defaults to 0 if undefined
+          houseScores[house] += answer || 0;
         });
       });
     });
@@ -246,45 +246,36 @@ const Test = ({ token, refreshProfile }) => {
       houseScores[currentHouse] > houseScores[maxHouse] ? currentHouse : maxHouse
     );
   
-    setHouseResult(maxScoreHouse);
-  
-    // Fetch user data from the API
     try {
+      // Fetch user data first
       const userData = await getUser(token);
-      setUserData(userData);  // Set the fetched user data
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
+      setUserData(userData);
   
-    // Save test results to the API
-    try {
       const testResults = {
         houseResult: maxScoreHouse,
         answers: answers,
       };
   
-      // Check if test results already exist (assuming userData has existing test results)
+      // Save or update test results
       if (userData?.testResults?.length > 0) {
-        // If the test already exists, update the test result
-        const updatedTestResults = await updateTestResults(token, testResults);
-        console.log("Test results updated successfully:", updatedTestResults);
+        await updateTestResults(token, testResults);
       } else {
-        // If no previous test results, create a new test result
-        const newTestResults = await saveTestResults(token, testResults);
-        console.log("Test results saved successfully:", newTestResults);
+        await saveTestResults(token, testResults);
       }
   
-      // Trigger a profile refresh after saving the results
+      // Refresh profile
       if (refreshProfile) {
-        refreshProfile();
+        await refreshProfile();
       }
   
-      // Open the modal after saving test results
+      // Set house result and open modal
+      setHouseResult(maxScoreHouse);
       setModalOpen(true);
     } catch (error) {
-      console.error("Error saving test results:", error);
+      console.error("Error handling test results:", error);
     }
   };
+  
   
 
   const changePage = (direction) => {

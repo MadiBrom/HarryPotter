@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"; // Import useNavigate
 import createNewUser from "../API/api"; // Ensure correct import
 import { loginUser } from "../API/api"; // Import loginUser for auto-login after registration
 
-const Register = ({ setUser }) => {
+const Register = ({ setUser, setToken }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,7 +35,7 @@ const Register = ({ setUser }) => {
       const loginResponse = await loginUser({ email, password });
 
       if (loginResponse.token) {
-        localStorage.setItem("token", loginResponse.token); // Save token
+        setToken(loginResponse.token); // Store token in state, NOT localStorage
         setUser(loginResponse.user); // Update the state with the new user data
 
         setSuccess("Registration successful! Redirecting...");

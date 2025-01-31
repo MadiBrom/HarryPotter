@@ -36,7 +36,7 @@ function App() {
       setIsLoggedIn(false);
     }
   };
-  
+
   useEffect(() => {
     fetchUser();
   }, [token]);
@@ -72,6 +72,8 @@ function App() {
             path="/register"
             element={
               <Register
+              setToken={setToken}
+              token={token}
                 setUser={setUser}
               />
             }
