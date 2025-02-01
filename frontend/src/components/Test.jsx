@@ -314,18 +314,20 @@ const Test = ({ token, refreshProfile }) => {
 
       {getQuestionsForPage().map(({ house, trait, question }, index) => (
         <div key={index} className="question-item">
-          <h3>{question}</h3>
-          <label className="range-label">Strongly Disagree</label>
-          <input
-            type="range"
-            className="range-input"
-            min="-2"
-            max="2"
-            value={answers[house]?.[trait]?.[question] ?? 0} // Ensure a default value of 0
-            onChange={(e) => handleAnswerChange(house, trait, question, Number(e.target.value))}
-          />
-          <label className="range-label">Strongly Agree</label>
-        </div>
+  <h3>{question}</h3>
+  <div className="range-wrapper">
+    <label className="range-label range-label-left">Strongly Disagree</label>
+    <input
+      type="range"
+      className="range-input"
+      min="-2"
+      max="2"
+      value={answers[house]?.[trait]?.[question] ?? 0} // Ensure a default value of 0
+      onChange={(e) => handleAnswerChange(house, trait, question, Number(e.target.value))}
+    />
+    <label className="range-label range-label-right">Strongly Agree</label>
+  </div>
+</div>
       ))}
 
       <div className="pagination-controls">

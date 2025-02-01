@@ -250,4 +250,12 @@ body {
   .toggle-btn.show-details-btn:hover {
     background-color: #388e3c;
   }
+  .intro {
+    margin: 20px;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    text-align: center;
+  }
+  
   

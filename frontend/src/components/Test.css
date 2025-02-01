@@ -1,172 +1,51 @@
-/* Test.css */
-
-/* General Styling */
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f4f4f9;
-  color: #333;
-}
-
-h1, h2 {
-  color: #4b4b4b;
-}
-
-h1 {
-  text-align: center;
-  margin: 20px 0;
-}
-
-h2 {
-  text-align: center;
-}
-
-/* Container for the whole test */
-.test-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Questions */
+/* Question Item */
 .question-item {
   margin-bottom: 20px;
+  background-color: #fdf8f4; /* Soft cream background */
+  padding: 18px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-.question-item h3 {
+h3 {
   font-size: 18px;
-  color: #555;
-  margin: 10px 0;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
 }
 
-/* Range Input Slider */
-.range-input {
-  width: 100%;
-  margin: 10px 0;
-  cursor: pointer;
-}
-
-/* Label */
 .range-label {
   font-size: 14px;
-  color: #777;
-  display: inline-block;
-  margin: 0 5px;
+  color: #444;
 }
 
-/* Pagination Controls */
-.pagination-controls {
+.range-wrapper {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-top: 20px;
-}
-
-.pagination-controls button {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-  border-radius: 5px;
-  font-size: 16px;
-}
-
-.pagination-controls button:disabled {
-  background-color: #ccc;
-}
-
-.pagination-controls button:hover:not(:disabled) {
-  background-color: #45a049;
-}
-
-/* Submit Button */
-.submit-btn {
-  background-color: #008CBA;
-  color: white;
-  padding: 10px 20px;
-  margin-top: 20px;
   width: 100%;
-  font-size: 18px;
-  border-radius: 5px;
-  cursor: pointer;
+  margin: 10px 0;
 }
 
-.submit-btn:hover {
-  background-color: #007B9F;
+.range-label-left {
+  text-align: left;
 }
 
-/* Section for house result */
-.house-result {
-  text-align: center;
-  padding: 20px;
-  margin-top: 30px;
+.range-label-right {
+  text-align: right;
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
+.range-input {
   width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
 }
 
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-  width: 300px;
+/* Adjusting the labels to be on opposite sides */
+.range-label-left {
+  margin-right: auto;
 }
 
-.modal-content button {
-  margin-top: 15px;
-  padding: 10px;
-  border: none;
-  background-color: #333;
-  color: white;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.modal-content button:hover {
-  background-color: #555;
-}
-
-
-/* Fade-in animation */
-@keyframes fadeIn {
-  from {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* Close button */
-.modal-close {
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  font-size: 20px;
-  cursor: pointer;
-  border: none;
-  background: none;
-  color: #333;
-}
-
-.modal-close:hover {
-  color: red;
+.range-label-right {
+  margin-left: auto;
 }
