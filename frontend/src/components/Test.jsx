@@ -274,21 +274,19 @@ const Test = ({ token, refreshProfile }) => {
       // Refetch user data to make sure we have the most updated result
       const updatedUserData = await getUser(token);
       setUserData(updatedUserData); // Set the latest user data
+
+      // Open the modal here, after all updates are done
+      setHouseResult(maxScoreHouse);
+      setModalOpen(true);  // This will trigger the modal to open
   
       // Refresh profile if needed
       if (refreshProfile) {
         await refreshProfile();
       }
-  
-      // Set house result and open modal
-      setHouseResult(maxScoreHouse);
-      setModalOpen(true);
     } catch (error) {
       console.error("Error handling test results:", error);
     }
   };
-  
-  
 
   const changePage = (direction) => {
     if (direction === 'next' && currentPage < Math.ceil(shuffledQuestions.length / questionsPerPage)) {
@@ -314,20 +312,20 @@ const Test = ({ token, refreshProfile }) => {
 
       {getQuestionsForPage().map(({ house, trait, question }, index) => (
         <div key={index} className="question-item">
-  <h3>{question}</h3>
-  <div className="range-wrapper">
-    <label className="range-label range-label-left">Strongly Disagree</label>
-    <input
-      type="range"
-      className="range-input"
-      min="-2"
-      max="2"
-      value={answers[house]?.[trait]?.[question] ?? 0} // Ensure a default value of 0
-      onChange={(e) => handleAnswerChange(house, trait, question, Number(e.target.value))}
-    />
-    <label className="range-label range-label-right">Strongly Agree</label>
-  </div>
-</div>
+          <h3>{question}</h3>
+          <div className="range-wrapper">
+            <label className="range-label range-label-left">Strongly Disagree</label>
+            <input
+              type="range"
+              className="range-input"
+              min="-2"
+              max="2"
+              value={answers[house]?.[trait]?.[question] ?? 0} // Ensure a default value of 0
+              onChange={(e) => handleAnswerChange(house, trait, question, Number(e.target.value))}
+            />
+            <label className="range-label range-label-right">Strongly Agree</label>
+          </div>
+        </div>
       ))}
 
       <div className="pagination-controls">
@@ -341,7 +339,10 @@ const Test = ({ token, refreshProfile }) => {
       </div>
 
       <br />
-      <button className="submit-btn" onClick={calculateHouse}>Submit</button>
+      {/* Conditionally render submit button only on the last page */}
+      {currentPage === Math.ceil(shuffledQuestions.length / questionsPerPage) && (
+        <button className="submit-btn" onClick={calculateHouse}>Submit</button>
+      )}
 
       {/* Render the Modal if modalOpen is true */}
       {modalOpen && <Modal houseResult={houseResult} userData={userData} onClose={handleClose} />}

@@ -1,5 +1,6 @@
 const API_URL = "https://wizard-world-api.herokuapp.com";
 const api_url = "http://localhost:3000/api";
+const potter_url = "https://hp-api.onrender.com"
 
 // Helper Function to handle errors
 const handleErrorResponse = async (response) => {
@@ -98,12 +99,40 @@ export async function getElixirs() {
   try {
     const response = await fetch(`${API_URL}/Elixirs`);
     if (!response.ok) {
-      throw new Error("Error fetching house");
+      throw new Error("Error fetching elixir");
     }
-    const housesData= await response.json();
-    return housesData;
+    const elixirData= await response.json();
+    return elixirData;
   } catch (error) {
-    console.error("Error fetching the house:", error);
+    console.error("Error fetching the elixir:", error);
+    throw error;
+  }
+}
+
+export async function getStudents() {
+  try {
+    const response = await fetch(`${potter_url}/api/characters/students`);
+    if (!response.ok) {
+      throw new Error("Error fetching student");
+    }
+    const studentData= await response.json();
+    return studentData;
+  } catch (error) {
+    console.error("Error fetching the student:", error);
+    throw error;
+  }
+}
+
+export async function getTeachers() {
+  try {
+    const response = await fetch(`${potter_url}/api/characters/staff`);
+    if (!response.ok) {
+      throw new Error("Error fetching staff member");
+    }
+    const staffData= await response.json();
+    return staffData;
+  } catch (error) {
+    console.error("Error fetching the staff member:", error);
     throw error;
   }
 }
