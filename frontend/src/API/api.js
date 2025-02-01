@@ -152,7 +152,8 @@ export const getUser = async (token) => {
 
 export const updateTestResults = async (userId, houseResult, answers, token) => {
   try {
-    const response = await fetch(`${api_url}/test-results/${userId}`, {
+    const response = await fetch(`${api_url}/test-results/${userId}
+`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -163,7 +164,6 @@ export const updateTestResults = async (userId, houseResult, answers, token) => 
         answers,
       }),
     });
-
     if (response.ok) {
       const data = await response.json();
       console.log("Test results updated:", data);
@@ -197,28 +197,34 @@ export const logoutUser = async (token) => {
 };
 
 export const saveTestResults = async (token, testData) => {
+  if (!token) {
+    console.error("❌ No token provided to saveTestResults!");
+    return;
+  }
+
   try {
     const response = await fetch(`${api_url}/saveTestResults`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        "Authorization": `Bearer ${token}`,
       },
       body: JSON.stringify(testData),
     });
 
-    const text = await response.text(); // Read response as text first
-    console.log("Raw Response:", text);
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("❌ Error saving test results:", errorData);
+      throw new Error(errorData.message || "Failed to save test results.");
+    }
 
-    const data = JSON.parse(text); // Parse JSON manually
-    console.log("Test results saved:", data);
-
-    return data;
+    return await response.json();
   } catch (error) {
-    console.error("Error saving test results:", error);
+    console.error("❌ API Error in saveTestResults:", error);
     throw error;
   }
 };
+
 
 // Fetch test results
 export const fetchTestResults = async (token) => {

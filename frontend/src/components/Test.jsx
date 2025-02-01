@@ -179,6 +179,12 @@ const Test = ({ token, refreshProfile }) => {
   const [modalOpen, setModalOpen] = useState(false); // Track the modal state
 
   useEffect(() => {
+    if (userData) {
+      setModalOpen(true); // Open modal when userData is updated
+    }
+  }, [userData]); 
+
+  useEffect(() => {
     const allQuestions = Object.entries(traits).flatMap(([house, qualities]) =>
       Object.entries(qualities).flatMap(([trait, questions]) =>
         questions.map(question => ({ house, trait, question }))
@@ -247,23 +253,29 @@ const Test = ({ token, refreshProfile }) => {
     );
   
     try {
-      // Fetch user data first
+      // Fetch user data
       const userData = await getUser(token);
-      setUserData(userData);
+      setUserData(userData); // Immediately update state with fresh user data
   
       const testResults = {
         houseResult: maxScoreHouse,
         answers: answers,
       };
   
-      // Save or update test results
+      // Check if test results already exist for the user
       if (userData?.testResults?.length > 0) {
-        await updateTestResults(token, testResults);
+        // Update test results if they exist
+        await updateTestResults(userData.id, maxScoreHouse, answers, token);
       } else {
+        // Save new test results if none exist
         await saveTestResults(token, testResults);
       }
   
-      // Refresh profile
+      // Refetch user data to make sure we have the most updated result
+      const updatedUserData = await getUser(token);
+      setUserData(updatedUserData); // Set the latest user data
+  
+      // Refresh profile if needed
       if (refreshProfile) {
         await refreshProfile();
       }
