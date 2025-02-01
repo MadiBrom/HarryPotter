@@ -247,7 +247,7 @@ const Test = ({ token, refreshProfile }) => {
     );
   
     try {
-      // Fetch user data first
+      // Fetch user data
       const userData = await getUser(token);
       setUserData(userData);
   
@@ -256,10 +256,16 @@ const Test = ({ token, refreshProfile }) => {
         answers: answers,
       };
   
-      // Always save new test results instead of updating
-      await saveTestResults(token, testResults);
+      // Check if test results already exist for the user
+      if (userData?.testResults?.length > 0) {
+        // Update test results if they exist
+        await updateTestResults(userData.id, maxScoreHouse, answers, token);
+      } else {
+        // Save new test results if none exist
+        await saveTestResults(token, testResults);
+      }
   
-      // Refresh profile
+      // Refresh profile if needed
       if (refreshProfile) {
         await refreshProfile();
       }
