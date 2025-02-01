@@ -12,14 +12,14 @@ const Navbar = ({ isLoggedIn, handleLogout }) => {
   return (
     <nav style={{ position: "fixed", top: 0, right: 0, zIndex: 1000 }}>
       <button onClick={() => navigate("/")}>Home</button>
-      <button onClick={() => navigate("/houses")}>Houses</button>
-      <button onClick={() => navigate("/test")}>Test</button>
-      {isLoggedIn ? (
+      {isLoggedIn && (
         <>
+          <button onClick={() => navigate("/test")}>Test</button>
           <button onClick={() => navigate("/profile")}>Profile</button>
           <button onClick={handleLogoutClick}>Logout</button>
         </>
-      ) : (
+      )}
+      {!isLoggedIn && (
         <>
           <button onClick={() => navigate("/login")}>Login</button>
           <button onClick={() => navigate("/register")}>Register</button>

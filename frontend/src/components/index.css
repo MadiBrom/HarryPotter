@@ -1,0 +1,261 @@
+/* Global Styles */
+body {
+    font-family: "Garamond", serif;
+    background-color: #f4f2f0;
+    color: #333;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Container Styles */
+  .container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Title Styling */
+  h1 {
+    text-align: center;
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 40px;
+    color: #6e1f1b;  /* Dark Burgundy for Classy Vibe */
+    font-family: 'Times New Roman', serif;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+  }
+  
+  /* Loading/Error Messages */
+  .loading, .error {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #d9534f;
+    padding: 20px;
+    background-color: #f2dede;
+    border: 1px solid #ebccd1;
+    border-radius: 5px;
+  }
+  
+  /* Dropdown Styles */
+  .dropdown {
+    margin-bottom: 20px;
+  }
+  
+  .toggle-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    background-color: #7a4d3b; /* Rich brown for elegant feel */
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .toggle-btn:hover {
+    background-color: #5f3a2b;
+    transform: scale(1.03);
+  }
+  
+  .dropdown-content {
+    margin-top: 10px;
+    padding-left: 20px;
+    display: block;
+    background-color: #fdf8f4;  /* Soft cream background */
+    border-left: 4px solid #7a4d3b;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Card Styling */
+  .card {
+    background-color: #fff;
+    padding: 18px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card h3 {
+    font-size: 26px;
+    color: #6e1f1b;  /* Dark Burgundy for Headers */
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  
+  .card p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #444;
+  }
+  
+  .card strong {
+    color: #7a4d3b;
+    font-weight: 600;
+  }
+  
+  /* Spell and Elixir Info */
+  .elixir-info, .spell-info {
+    margin-top: 12px;
+    background-color: #fdf8f4;
+    padding: 18px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .elixir-info ul {
+    list-style-type: disc;
+    padding-left: 20px;
+    color: #444;
+  }
+  
+  .elixir-info li {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+  
+  .elixir-info strong {
+    color: #6e1f1b;
+  }
+  
+  /* Modal Styles */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 90%;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .modal button {
+    background-color: #7a4d3b; /* Match button color with theme */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    display: block;
+    margin-left: auto;
+    transition: background-color 0.3s ease;
+  }
+  
+  .modal button:hover {
+    background-color: #5f3a2b;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .container {
+      padding: 15px;
+    }
+  
+    h1 {
+      font-size: 30px;
+    }
+  
+    .card {
+      padding: 15px;
+    }
+  
+    .toggle-btn {
+      font-size: 16px;
+    }
+  
+    .modal-content {
+      width: 90%;
+    }
+  }
+  
+  /* Spell List Styling */
+  .dropdown-content ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .dropdown-content li {
+    background-color: #fff;
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .dropdown-content li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dropdown-content li div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .dropdown-content li span {
+    font-size: 18px;
+    font-weight: bold;
+    color: #6e1f1b; /* Dark Burgundy for better contrast */
+    flex-grow: 1;
+  }
+  
+  /* Show Details Button Styling */
+  .toggle-btn.show-details-btn {
+    background-color: #4b8b3b; /* Olive green for the show details button */
+    padding: 10px 20px;
+    font-size: 16px;
+    text-transform: uppercase;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #fff;
+    transition: background-color 0.3s ease;
+  }
+  
+  .toggle-btn.show-details-btn:hover {
+    background-color: #388e3c;
+  }
+  .intro {
+    margin: 20px;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    text-align: center;
+  }
+  
+  

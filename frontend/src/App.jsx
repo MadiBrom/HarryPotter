@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { logoutUser, getUser } from "./API/api";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Index from "./components/index";
-import Houses from "./components/Houses";
 import Navbar from "./components/Navbar";
 import Register from "./components/Register";
 import Login from './components/Login';
@@ -67,7 +66,6 @@ function App() {
             path="/profile"
             element={<Profile token={token} refreshProfile={refreshProfile} />}
           />
-          <Route path="/houses" element={<Houses />} />
           <Route path="/test" element={<Test token={token} refreshProfile={refreshProfile}/>} />
         </Routes>
       </div>
