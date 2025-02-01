@@ -22,7 +22,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "react-router-dom": "^7.1.3",
+    "react-router-dom": "^7.1.5",
     "vite": "^6.0.11"
   }
 }
