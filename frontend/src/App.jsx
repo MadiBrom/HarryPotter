@@ -7,6 +7,7 @@ import Register from "./components/Register";
 import Login from './components/Login';
 import Profile from "./components/Profile";
 import Test from "./components/Test";
+import WandTest from "./components/WandTest";
 
 function App() {
   const [token, setToken] = useState("");  // Initially empty
@@ -66,6 +67,7 @@ function App() {
             path="/profile"
             element={<Profile token={token} refreshProfile={refreshProfile} />}
           />
+          <Route path="/wandtest" element={<WandTest token={token} refreshProfile={refreshProfile}/>} />
           <Route path="/test" element={<Test token={token} refreshProfile={refreshProfile}/>} />
         </Routes>
       </div>
