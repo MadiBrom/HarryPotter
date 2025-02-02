@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { saveTestResults } from '../API/api';// Adjust the import path to your API helper file
+import { saveWandResults } from '../API/api'; // This API helper should point to your /api/saveWandResults endpoint
 
 // -----------------
 // Wood Questions
@@ -85,14 +85,13 @@ const initialScores = {
   length: { short: 0, medium: 0, long: 0 },
 };
 
-const WandTest = () => {
-  // State to track current section/question
+const WandTest = ({ token }) => {
+  // State to track current section and question
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [sectionScores, setSectionScores] = useState(initialScores);
   const [showResult, setShowResult] = useState(false);
-  
-  // New state to store the user's chosen answers
+  // State to store the user's chosen answers
   const [userAnswers, setUserAnswers] = useState([]);
 
   const currentSection = sections[currentSectionIndex];
@@ -151,7 +150,7 @@ const WandTest = () => {
     return resultKey;
   };
 
-  // Build the final wand description
+  // Build the final wand description from results of all sections
   const getFinalWandDescription = () => {
     const woodType = getSectionResult("wood");
     const coreType = getSectionResult("core");
@@ -201,35 +200,25 @@ const WandTest = () => {
     return `Your wand is crafted from ${woodDescription} wood, imbued with a core of ${coreDescription}, and measures ${lengthDescription} in length.`;
   };
 
-
-  
-  // After test completion, call the API to save the test results.
+  // Upload the wand test results when the test is complete
   useEffect(() => {
-    if (showResult) {
-      // Retrieve the token (assumes you have stored it after login)
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("No token found; cannot save test results.");
-        return;
-      }
-      // Prepare test data payload
-      const testData = {
-        houseResult: getFinalWandDescription(),
+    if (showResult && token) {
+      const wandData = {
+        wandResult: getFinalWandDescription(),
         answers: userAnswers,
       };
 
-      // Call the API to save the results
-      saveTestResults(token, testData)
+      saveWandResults(token, wandData)
         .then((response) => {
-          console.log("Test results saved:", response);
+          console.log("Wand results saved:", response);
         })
         .catch((error) => {
-          console.error("Error saving test results:", error);
+          console.error("Error saving wand results:", error);
         });
     }
-  }, [showResult, userAnswers]);
+  }, [showResult, token, userAnswers]);
 
-  // Restart the test
+  // Restart the test to allow a new attempt
   const restartTest = () => {
     setCurrentSectionIndex(0);
     setCurrentQuestionIndex(0);

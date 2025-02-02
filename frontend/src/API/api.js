@@ -225,6 +225,35 @@ export const logoutUser = async (token) => {
   }
 };
 
+export const saveWandResults = async (token, wandData) => {
+  if (!token) {
+    console.error("❌ No token provided to saveWandResults!");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${api_url}/saveWandResults`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify(wandData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("❌ Error saving wand results:", errorData);
+      throw new Error(errorData.message || "Failed to save wand results.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("❌ API Error in saveWandResults:", error);
+    throw error;
+  }
+};
+
 export const saveTestResults = async (token, testData) => {
   if (!token) {
     console.error("❌ No token provided to saveTestResults!");
@@ -270,3 +299,28 @@ export const fetchTestResults = async (token) => {
     console.error("Error fetching test results:", error);
   }
 };
+
+// Fetch Wand Test Results
+export const fetchWandResults = async (token) => {
+  if (!token) {
+    console.error("No token provided to fetchWandResults");
+    return { error: "No token provided" };
+  }
+
+  try {
+    const response = await fetch(`${api_url}/wand-results`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      return handleErrorResponse(response);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching wand results:", error);
+    throw error;
+  }
+};
+
