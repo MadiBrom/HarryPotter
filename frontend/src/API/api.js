@@ -469,3 +469,33 @@ export const fetchAllUsers = async (token) => {
     throw error;
   }
 };
+export const getSingleUser = async (userId, token) => {
+  if (!token) {
+    console.error("❌ No token provided to getSingleUser");
+    return { error: "No token provided" };
+  }
+
+  try {
+    const response = await fetch(`${api_url}/user/${userId}`, { // Make sure the endpoint matches your API's route for fetching a single user
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("🔵 Token passed to getSingleUser:", token);
+
+    if (!response.ok) {
+      throw new Error(`❌ API Error: ${response.status} - ${response.statusText}`);
+    }
+
+    const userData = await response.json();
+    console.log("🟢 Received user data from API:", userData);
+
+    return userData;
+  } catch (error) {
+    console.error("❌ Error in getSingleUser:", error);
+    return { error: error.message };
+  }
+};

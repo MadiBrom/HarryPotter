@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchAllUsers, getUser } from "../API/api"; // Ensure you have fetchUserDetails in your API file
+import { fetchAllUsers, getSingleUser } from "../API/api"; // Ensure you have fetchUserDetails in your API file
 
 const AllUsers = ({token}) => {
   const [users, setUsers] = useState([]);
@@ -47,7 +47,7 @@ const AllUsers = ({token}) => {
 
   const handleUserClick = async (userId) => {
     try {
-      const userDetails = await getUser(userId, token);
+      const userDetails = await getSingleUser(userId, token);
       setSelectedUser(userDetails);
     } catch (error) {
       setError(error.message);
@@ -90,7 +90,7 @@ const AllUsers = ({token}) => {
           </p>
           <p>
             <strong>Wand:</strong>{" "}
-            {selectedUser.testResults?.[0]?.wandResult || "No test taken yet"}
+            {selectedUser.wandTestResults?.[0]?.result || "No test taken yet"}
           </p>
         </div>
       )}

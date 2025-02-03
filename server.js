@@ -20,7 +20,6 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE"]
 }));
 
-
 // JWT secret
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -459,6 +458,31 @@ app.put("/api/update-profile", authenticateToken, async (req, res) => {
   }
 });
 
+
+
+// Route to get a single user by ID
+app.get('/api/user/:userId', authenticateToken, async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        testResults: true,
+        wandTestResults: true
+      }
+    });
+
+    if (!user) {
+      return res.status(404).send('User not found'); // Send 404 if no user found
+    }
+
+    res.json(user); // Send the user data
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).send('Internal server error'); // Handle unexpected errors
+  }
+});
 
 const fs = require('fs');
 const dir = './uploads';
