@@ -36,6 +36,27 @@ const createNewUser = async (username, email, password) => {
 
 export default createNewUser;
 
+// In your src/API/api.js
+
+export const registerUser = async ({ username, email, password, isAdmin = false, secretKey }) => {
+  const response = await fetch(`${api_url}/auth/register`, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+          username,
+          email,
+          password,
+          isAdmin,
+          secretKey  // Include secretKey if you are using it for admin registration
+      })
+  });
+  const data = await response.json();
+  return data; // Return the response data for further processing
+};
+
+
 // Login User
 export async function loginUser({ email, password }) {
   console.log("Sending login request with:", { email, password }); // Debug log

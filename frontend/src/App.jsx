@@ -8,6 +8,7 @@ import Login from './components/Login';
 import Profile from "./components/Profile";
 import Test from "./components/Test";
 import WandTest from "./components/WandTest";
+import RegisterAdmin from "./components/RegisterAdmin";
 
 // ✅ Function to get stored token
 const getAuthToken = () => {
@@ -16,6 +17,7 @@ const getAuthToken = () => {
 
 function App() {
   const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [token, setToken] = useState(getAuthToken()); // ✅ Initialize token from storage
 
@@ -75,11 +77,13 @@ function App() {
 
   return (
     <Router>
-      <Navbar isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+      <Navbar isLoggedIn={isLoggedIn} handleLogout={handleLogout} isAdmin={user?.isAdmin} />
       <div>
         <Routes>
           <Route path="/" element={<Index isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>} />
           <Route path="/register" element={<Register setToken={setToken} setUser={setUser} />} />
+          <Route path="/registeradmin" element={<RegisterAdmin setToken={setToken} setUser={setUser} />} />
+
           <Route path="/login" element={<Login setToken={setToken} />} />
           <Route
   path="/profile"
