@@ -209,6 +209,21 @@ app.put('/api/test-results/:userId', authenticateToken, async (req, res) => {
   }
 });
 
+app.post("/api/wandTestResults", authenticateToken, async (req, res) => {
+  console.log("Received wand test data:", req.body);
+  console.log("Type of wandResult:", typeof req.body.wandResult);
+  console.log("Type of answers:", typeof req.body.answers);
+
+  const { wandResult, answers } = req.body;
+
+  if (!wandResult || !answers || !Array.isArray(answers) || answers.length === 0) {
+      return res.status(400).json({ message: "Wand result and answers are required and answers must be an array." });
+  }
+
+  res.status(201).json({ message: "Wand test result saved successfully", data: req.body });
+});
+
+
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

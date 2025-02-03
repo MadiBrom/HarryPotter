@@ -270,3 +270,28 @@ export const fetchTestResults = async (token) => {
     console.error("Error fetching test results:", error);
   }
 };
+
+export const saveWandTestResults = async (token, testData) => {
+  try {
+    const response = await fetch(`${api_url}/wandTestResults`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify(testData),
+    });
+    console.log("Sending testData:", testData);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Error saving wand test results:", errorData.message);
+      throw new Error(errorData.message || "Failed to save wand test results.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("API Error in saveWandTestResults:", error);
+    throw error;
+  }
+};

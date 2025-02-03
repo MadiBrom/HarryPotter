@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { saveTestResults } from '../API/api';// Adjust the import path to your API helper file
+import { saveWandTestResults } from '../API/api';// Adjust the import path to your API helper file
 
 // -----------------
 // Wood Questions
@@ -85,7 +85,7 @@ const initialScores = {
   length: { short: 0, medium: 0, long: 0 },
 };
 
-const WandTest = () => {
+const WandTest = ({token, refreshProfile}) => {
   // State to track current section/question
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -202,32 +202,26 @@ const WandTest = () => {
   };
 
 
-  
-  // After test completion, call the API to save the test results.
-  useEffect(() => {
-    if (showResult) {
-      // Retrieve the token (assumes you have stored it after login)
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("No token found; cannot save test results.");
-        return;
-      }
-      // Prepare test data payload
+// After test completion, call the API to save the test results.
+useEffect(() => {
+  const saveResults = async () => {
+    if (showResult && token) {
       const testData = {
-        houseResult: getFinalWandDescription(),
-        answers: userAnswers,
+          wandResult: getFinalWandDescription(),
+          answers: userAnswers,
       };
 
-      // Call the API to save the results
-      saveTestResults(token, testData)
-        .then((response) => {
-          console.log("Test results saved:", response);
-        })
-        .catch((error) => {
-          console.error("Error saving test results:", error);
-        });
+      try {
+          const response = await saveWandTestResults(token, testData);
+          console.log("Wand test results saved:", response);
+      } catch (error) {
+          console.error("Error saving wand test results:", error);
+      }
     }
-  }, [showResult, userAnswers]);
+  };
+
+  saveResults();
+}, [showResult, userAnswers, token]);
 
   // Restart the test
   const restartTest = () => {
