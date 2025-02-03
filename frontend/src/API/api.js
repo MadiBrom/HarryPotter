@@ -351,3 +351,34 @@ export const createWandTestResult = async (userId, testData, token) => {
   }
 };
 
+// In your /src/API/api.js file
+
+export async function uploadProfilePic(formData, token) {
+  console.log("🔵 Bearer token being sent:", `Bearer ${token}`);
+
+  if (!token) {
+      console.error("❌ No token provided for uploadProfilePic!");
+      return { error: "No token provided" };
+  }
+
+  try {
+      const response = await fetch(`${api_url}/upload-profile-pic`, {
+          method: 'POST',
+          headers: {
+              'Authorization': `Bearer ${token}`, // ✅ Make sure this is prefixed correctly
+          },
+          body: formData
+      });
+
+      if (!response.ok) {
+          const errorData = await response.json();
+          console.error("❌ Upload error:", errorData);
+          throw new Error(errorData.message || 'Upload failed');
+      }
+
+      return await response.json();
+  } catch (error) {
+      console.error("Upload error:", error.message);
+      throw error; 
+  }
+}

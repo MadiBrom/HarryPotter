@@ -82,9 +82,10 @@ function App() {
           <Route path="/register" element={<Register setToken={setToken} setUser={setUser} />} />
           <Route path="/login" element={<Login setToken={setToken} />} />
           <Route
-            path="/profile"
-            element={<Profile token={token} refreshProfile={fetchUser} setUser={setUser} />}
-          />
+  path="/profile"
+  element={<Profile token={token} refreshProfile={fetchUser} setUser={setUser} />}
+/>
+
           <Route path="/wandtest" element={<WandTest token={token} refreshProfile={fetchUser} user={user} />} />
           <Route path="/test" element={<Test token={token} refreshProfile={fetchUser} />} />
         </Routes>
