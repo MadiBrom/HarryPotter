@@ -297,29 +297,57 @@ export const saveWandTestResults = async (token, testData) => {
 };
 
 // Update Wand Test Results
-export const updateWandTestResults = async (userId, wandResult, answers, token) => {
+export const updateWandTestResults = async (userId, testData, token) => {
   try {
-    const response = await fetch(`${api_url}/wand-test-results/${userId}`, {
+    console.log("🔵 Sending PUT request to update wand test results...");
+    console.log("📨 Data being sent:", testData);
+
+    const response = await fetch(`${api_url}/wand-results/${userId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`, // Include the JWT token in the Authorization header
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        wandResult,
-        answers,
-      }),
+      body: JSON.stringify(testData),
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Error updating wand test results:", errorData.message);
-      throw new Error(errorData.message);
+      const errorResponse = await response.json();
+      console.error("❌ Server responded with error:", errorResponse);
+      throw new Error("Failed to update wand test results.");
     }
 
-    return await response.json(); // Return the updated test results
+    return await response.json();
   } catch (error) {
-    console.error("Error updating wand test results:", error);
-    throw error; // Propagate the error
+    console.error("❌ Error updating wand test results:", error);
+    throw error;
   }
 };
+
+
+
+
+export const createWandTestResult = async (userId, testData, token) => {
+  console.log("✅ Sending to API:", JSON.stringify(testData)); // Debug output
+
+  try {
+    const response = await fetch(`${api_url}/wand-results`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(testData), // Ensure body is JSON
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to create new wand test result.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("❌ Error creating wand test result:", error);
+    throw error;
+  }
+};
+

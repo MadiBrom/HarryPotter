@@ -9,22 +9,48 @@ import Profile from "./components/Profile";
 import Test from "./components/Test";
 import WandTest from "./components/WandTest";
 
+// ✅ Function to get stored token
+const getAuthToken = () => {
+  return sessionStorage.getItem("token") || "";
+};
+
 function App() {
-  const [token, setToken] = useState(sessionStorage.getItem("token") || "");
-
-
-  
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [token, setToken] = useState(getAuthToken()); // ✅ Initialize token from storage
 
-  // Fetch user only when there's a token
+  // ✅ Fetch user details when token is available
+  const fetchUser = async () => {
+    if (!token) return;
+
+    try {
+      console.log("🔵 Fetching user with token:", token);
+      const userData = await getUser(token);
+
+      if (userData && userData.username) {
+        console.log("🟢 User data received:", userData);
+        setUser(userData);
+        setIsLoggedIn(true);
+      } else {
+        console.warn("⚠️ No user data received.");
+        setUser(null);
+        setIsLoggedIn(false);
+      }
+    } catch (error) {
+      console.error("❌ Error fetching user:", error);
+      setUser(null);
+      setIsLoggedIn(false);
+    }
+  };
+
+  // ✅ Fetch user when token changes
   useEffect(() => {
-    console.log("Current token state in App.js:", token); // Debugging
     if (token) {
       fetchUser();
     }
   }, [token]);
 
+  // ✅ Store token in sessionStorage
   useEffect(() => {
     if (token) {
       sessionStorage.setItem("token", token);
@@ -32,35 +58,16 @@ function App() {
       sessionStorage.removeItem("token"); // Clear when logging out
     }
   }, [token]);
-  
-  const fetchUser = async () => {
-    if (!token) return;  // Ensure we only call if there's a valid token
 
-    try {
-      const userData = await getUser(token);
-      if (userData && userData.username) {
-        setUser(userData);
-        setIsLoggedIn(true);
-      } else {
-        setIsLoggedIn(false);
-      }
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      setIsLoggedIn(false);
-    }
-  };
-
-  const refreshProfile = () => {
-    fetchUser();
-  };
-
+  // ✅ Handle logout properly
   const handleLogout = async () => {
-    if (!token) return; // Prevent unnecessary logout calls
+    if (!token) return;
     try {
       await logoutUser(token);
       setUser(null);
       setIsLoggedIn(false);
-      setToken(""); // Clear token from state
+      setToken("");
+      sessionStorage.removeItem("token"); // Clear session
     } catch (error) {
       console.error("Logout failed:", error.message);
     }
@@ -76,10 +83,10 @@ function App() {
           <Route path="/login" element={<Login setToken={setToken} />} />
           <Route
             path="/profile"
-            element={<Profile token={token} refreshProfile={refreshProfile} />}
+            element={<Profile token={token} refreshProfile={fetchUser} setUser={setUser} />}
           />
-          <Route path="/wandtest" element={<WandTest token={token} refreshProfile={refreshProfile}/>} />
-          <Route path="/test" element={<Test token={token} refreshProfile={refreshProfile}/>} />
+          <Route path="/wandtest" element={<WandTest token={token} refreshProfile={fetchUser} user={user} />} />
+          <Route path="/test" element={<Test token={token} refreshProfile={fetchUser} />} />
         </Routes>
       </div>
     </Router>

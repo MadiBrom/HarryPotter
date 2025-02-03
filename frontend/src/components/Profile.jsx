@@ -1,37 +1,45 @@
 import React, { useEffect, useState } from "react";
 import { getUser } from "../API/api";
-import WandTest from "./WandTest"; // Import WandTest component
-import Test from "./Test"; // Import House Test component
 
-const Profile = ({ token, refreshProfile }) => {
+const Profile = ({ token, refreshProfile, setUser }) => {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchUserData();
-  }, [token]); // Only fetch when token changes
-
-  const fetchUserData = async () => {
-    if (!token) return;
-    try {
-      const user = await getUser(token);
-      if (user.error) {
-        setError(user.error);
-      } else {
-        setUserData(user);
+    const fetchUserData = async () => {
+      if (!token) return;
+      
+      try {
+        console.log("🔵 Fetching user data with token:", token);
+        const user = await getUser(token);
+        
+        if (user.error) {
+          setError(user.error);
+          setUserData(null);
+        } else {
+          console.log("🟢 User data received:", user);
+          setUserData(user);
+          setUser(user);
+        }
+      } catch (err) {
+        console.error("❌ Error fetching user:", err);
+        setError("Failed to fetch user data.");
+        setUserData(null);
       }
-    } catch (err) {
-      setError("Failed to fetch user data. Please try again.");
-      console.error("Error:", err);
-    }
-  };
+    };
+  
+    fetchUserData();
+  }, [token]); // ✅ Only runs when `token` changes
+  
 
-  if (error) {
-    return <div>{error}</div>;
+  // ✅ Handle loading state
+  if (!userData && !error) {
+    return <p>Loading...</p>;
   }
 
-  if (!userData) {
-    return <p>Loading...</p>;
+  // ✅ Handle errors
+  if (error) {
+    return <div style={{ color: "red" }}>{error}</div>;
   }
 
   return (
@@ -41,23 +49,17 @@ const Profile = ({ token, refreshProfile }) => {
 
       <h2>Your House Result</h2>
       <p>
-        You belong to: {userData.testResults?.[0]?.houseResult || "No test taken yet"}
+        {userData.testResults?.[0]?.houseResult || "No test taken yet"}
       </p>
 
       <h2>Your Wand Test Result</h2>
       <div>
         {userData.wandTestResults?.length > 0 ? (
-          <div>
-            <p>Wand Description: {userData.wandTestResults[0].result}</p>
-          </div>
+          <p>{userData.wandTestResults[0].result}</p>
         ) : (
           "No wand test taken yet"
         )}
       </div>
-
-      {/* Pass refreshProfile to test components */}
-      <WandTest token={token} refreshProfile={refreshProfile} />
-      <Test token={token} refreshProfile={refreshProfile} />
     </div>
   );
 };

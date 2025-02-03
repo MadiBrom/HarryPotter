@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Test.css';
-import { saveTestResults, fetchTestResults, getUser, updateTestResults } from '../API/api';
+import { saveTestResults, getUser, updateTestResults } from '../API/api';
 
 const traits = {
   Gryffindor: {
