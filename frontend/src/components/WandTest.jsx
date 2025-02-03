@@ -317,7 +317,7 @@ useEffect(() => {
           ))}
           
         </div>
-      )}<button onClick={submitWandTestResults}>Submit</button>
+      )}
     </div>
   );
 };

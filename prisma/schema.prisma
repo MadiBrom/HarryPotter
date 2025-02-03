@@ -9,13 +9,15 @@ generator client {
 
 
 model User {
-  id       String     @id @default(uuid())
-  username String
-  email    String  @unique
-  password String
-  testResults TestResult[] // Relationship with test results
+  id              String           @id @default(uuid())
+  username        String
+  email           String           @unique
+  password        String
+  profilePicUrl   String?          // Optional field to store profile picture URL
+  testResults     TestResult[]
   wandTestResults WandTestResult[]
 }
+
 
 model TestResult {
   id          String   @id @default(uuid())

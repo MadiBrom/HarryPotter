@@ -1,4 +1,6 @@
 require("dotenv").config();
+const path = require('path');
+const multer = require('multer');
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
@@ -9,7 +11,8 @@ const prisma = new PrismaClient();
 const app = express();
 
 // Middleware
-app.use(express.json());
+app.use(express.static('public'));
+app.use('/uploads', express.static('uploads'));app.use(express.json());
 app.use(cors({
   origin: "http://localhost:5173",  // Adjust to match your frontend port
   credentials: true,
@@ -22,23 +25,93 @@ app.use(cors({
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const authenticateToken = (req, res, next) => {
-  const token = req.header("Authorization")?.split(" ")[1]; 
+  const authHeader = req.header("Authorization");
+  console.log("🔑 Received Authorization Header:", authHeader);
 
-  console.log("🟡 Token received in backend:", token); // ✅ Log received token
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      console.error("❌ Missing or invalid token in request");
+      return res.status(403).json({ error: "User not authenticated." });
+  }
 
-  if (!token) return res.status(401).json({ message: "Authentication token is missing." });
+  const token = authHeader.split(" ")[1]; // Extract token from "Bearer <token>"
+  console.log("🟡 Extracted Token:", token);
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      console.error("🔴 JWT Verification Error:", err);
-      return res.status(403).json({ message: "Invalid token." });
-    }
-    console.log("🟢 Token successfully verified:", user);
-    req.user = user; 
-    next();
+      if (err) {
+          console.error("🔴 JWT Verification Failed:", err);
+          return res.status(403).json({ error: "Invalid token." });
+      }
+      console.log("🟢 Token Verified:", user);
+      req.user = user;
+      next();
   });
 };
 
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+      cb(null, 'uploads/');  // Make sure this directory exists
+  },
+  filename: (req, file, cb) => {
+      cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+  }
+});
+
+
+  const upload = multer({
+    storage: storage,
+    limits: { fileSize: 5000000 },  // 5MB limit, adjust according to needs
+    fileFilter: (req, file, cb) => {
+        const filetypes = /jpeg|jpg|png|gif/;
+        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = filetypes.test(file.mimetype);
+
+        if (mimetype && extname) {
+            return cb(null, true);
+        } else {
+            cb('Error: Images Only!');
+        }
+    }
+}).single('profilePic');
+
+
+function checkFileType(file, cb) {
+    // Allowed file types
+    const filetypes = /jpeg|jpg|png|gif/;
+    // Check ext and mime
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+        return cb(null, true);
+    } else {
+        cb('Error: Images Only!');
+    }
+}
+
+// Adding the /api prefix in your Express server
+app.post('/api/upload-profile-pic', authenticateToken, upload, async (req, res) => { // ✅ Ensure authenticateToken is first
+  if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded.' });
+  }
+  try {
+      console.log("📥 Received file:", req.file); // ✅ Log uploaded file
+      console.log("🔑 User ID from token:", req.user?.userId); // ✅ Log user ID
+
+      const filePath = `/uploads/${req.file.filename}`;
+      const userId = req.user.userId;
+
+      await prisma.user.update({
+          where: { id: userId },
+          data: { profilePicUrl: filePath }
+      });
+
+      res.json({ message: 'File Uploaded!', profilePicUrl: filePath });
+  } catch (error) {
+      console.error('❌ Error updating user profile:', error);
+      res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+});
 
 // Routes
 
@@ -309,7 +382,35 @@ app.post("/api/wand-results", async (req, res) => {
   }
 });
 
+app.put("/api/update-profile", authenticateToken, async (req, res) => {
+  try {
+    const { username, email, password, profilePicUrl } = req.body;
+    const userId = req.user.userId;
 
+    const updateData = {};
+    if (username) updateData.username = username;
+    if (email) updateData.email = email;
+    if (password) updateData.password = await bcrypt.hash(password, 10); // Hash new password
+    if (profilePicUrl) updateData.profilePicUrl = profilePicUrl;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: updateData
+    });
+
+    res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    res.status(500).json({ error: "Failed to update profile." });
+  }
+});
+
+
+const fs = require('fs');
+const dir = './uploads';
+if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+}
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

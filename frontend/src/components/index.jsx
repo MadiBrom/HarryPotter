@@ -19,7 +19,8 @@ const Modal = ({ children, onClose }) => (
   </div>
 );
 
-const Index = () => {
+// Destructure props correctly
+const Index = ({ isLoggedIn, setIsLoggedIn }) => {
   const [showModal, setShowModal] = useState(false);
   const [currentSpell, setCurrentSpell] = useState(null);
   const [currentElixir, setCurrentElixir] = useState(null);
@@ -44,6 +45,14 @@ const Index = () => {
   });
 
   const navigate = useNavigate();
+
+  // Check authentication status (e.g., via local storage)
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, [setIsLoggedIn]);
 
   // Fetch all data from the API
   useEffect(() => {
@@ -130,16 +139,19 @@ const Index = () => {
         <p>
           Step into the enchanted halls of Hogwarts and explore the magical
           houses, spells, elixirs, and characters that make up the rich wizarding
-          world. To access the full experience, please login or register below.
+          world.
         </p>
-        <div className="button-container">
-          <button onClick={navigateToLogin} className="btn">
-            Login
-          </button>
-          <button onClick={navigateToRegister} className="btn">
-            Register
-          </button>
-        </div>
+        {/* Render login/register buttons only if not logged in */}
+        {!isLoggedIn && (
+          <div className="button-container">
+            <button onClick={navigateToLogin} className="btn">
+              Login
+            </button>
+            <button onClick={navigateToRegister} className="btn">
+              Register
+            </button>
+          </div>
+        )}
       </section>
 
       {loading && <p className="loading">Loading data...</p>}
