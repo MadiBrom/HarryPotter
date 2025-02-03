@@ -10,7 +10,10 @@ import Test from "./components/Test";
 import WandTest from "./components/WandTest";
 
 function App() {
-  const [token, setToken] = useState("");  // Initially empty
+  const [token, setToken] = useState(sessionStorage.getItem("token") || "");
+
+
+  
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -22,6 +25,14 @@ function App() {
     }
   }, [token]);
 
+  useEffect(() => {
+    if (token) {
+      sessionStorage.setItem("token", token);
+    } else {
+      sessionStorage.removeItem("token"); // Clear when logging out
+    }
+  }, [token]);
+  
   const fetchUser = async () => {
     if (!token) return;  // Ensure we only call if there's a valid token
 

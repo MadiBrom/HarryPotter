@@ -1,31 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { getUser } from "../API/api";
+import WandTest from "./WandTest"; // Import WandTest component
+import Test from "./Test"; // Import House Test component
 
-const Profile = ({ token }) => {
+const Profile = ({ token, refreshProfile }) => {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState("");
-  const [refreshTrigger, setRefreshTrigger] = useState(0);  // **Trigger state**
 
-
+  useEffect(() => {
+    fetchUserData();
+  }, [token]); // Only fetch when token changes
 
   const fetchUserData = async () => {
+    if (!token) return;
     try {
       const user = await getUser(token);
       if (user.error) {
         setError(user.error);
-        return;
+      } else {
+        setUserData(user);
       }
-      setUserData(user);
     } catch (err) {
       setError("Failed to fetch user data. Please try again.");
       console.error("Error:", err);
     }
   };
-
-  useEffect(() => {
-    fetchUserData();
-  }, [token, refreshTrigger]);
-
 
   if (error) {
     return <div>{error}</div>;
@@ -44,18 +43,21 @@ const Profile = ({ token }) => {
       <p>
         You belong to: {userData.testResults?.[0]?.houseResult || "No test taken yet"}
       </p>
-      {/* Display Wand Test Result if available */}
+
       <h2>Your Wand Test Result</h2>
       <div>
-      {userData.wandTestResults?.length > 0 ? (
-    <div>
-      <p>Wand Description: {userData.wandTestResults[0].result}</p>
-            {/* Display more details if needed */}
+        {userData.wandTestResults?.length > 0 ? (
+          <div>
+            <p>Wand Description: {userData.wandTestResults[0].result}</p>
           </div>
         ) : (
           "No wand test taken yet"
         )}
       </div>
+
+      {/* Pass refreshProfile to test components */}
+      <WandTest token={token} refreshProfile={refreshProfile} />
+      <Test token={token} refreshProfile={refreshProfile} />
     </div>
   );
 };
