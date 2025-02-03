@@ -223,6 +223,7 @@ useEffect(() => {
   saveResults();
 }, [showResult, userAnswers, token]);
 
+
   // Restart the test
   const restartTest = () => {
     setCurrentSectionIndex(0);

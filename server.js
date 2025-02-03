@@ -100,24 +100,20 @@ app.get("/api/user", authenticateToken, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user.userId },
-      include: { testResults: true }, // Include test results in response
+      include: { testResults: true, wandTestResults: true },  // Including wand results
     });
 
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
 
-    res.status(200).json({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      testResults: user.testResults, // Return test results with user data
-    });
+    res.status(200).json(user);  // Returning the user with wand test results
   } catch (error) {
     console.error("Error fetching user data:", error);
     res.status(500).json({ message: "Error fetching user data." });
   }
 });
+
 
 app.get("/api/test-results", authenticateToken, async (req, res) => {
   try {
@@ -209,18 +205,23 @@ app.put('/api/test-results/:userId', authenticateToken, async (req, res) => {
   }
 });
 
+
 app.post("/api/wandTestResults", authenticateToken, async (req, res) => {
-  console.log("Received wand test data:", req.body);
-  console.log("Type of wandResult:", typeof req.body.wandResult);
-  console.log("Type of answers:", typeof req.body.answers);
-
   const { wandResult, answers } = req.body;
-
-  if (!wandResult || !answers || !Array.isArray(answers) || answers.length === 0) {
-      return res.status(400).json({ message: "Wand result and answers are required and answers must be an array." });
+  console.log("Received wand test data:", req.body);  // Good for debugging
+  try {
+      const newWandTestResult = await prisma.wandTestResult.create({
+          data: {
+              userId: req.user.userId,  // Authenticated user ID
+              result: wandResult,
+              answers: JSON.stringify(answers),  // Ensure answers are stored as JSON
+          },
+      });
+      res.status(201).json({ message: "Wand test result saved successfully", wandTestResult: newWandTestResult });
+  } catch (error) {
+      console.error("Error saving wand test result:", error);
+      res.status(500).json({ message: "Error saving wand test result." });
   }
-
-  res.status(201).json({ message: "Wand test result saved successfully", data: req.body });
 });
 
 

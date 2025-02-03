@@ -4,7 +4,9 @@ import { getUser } from "../API/api";
 const Profile = ({ token }) => {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState("");
-  const [refreshTrigger, setRefreshTrigger] = useState(0);  // To trigger refresh
+  const [refreshTrigger, setRefreshTrigger] = useState(0);  // **Trigger state**
+
+
 
   const fetchUserData = async () => {
     try {
@@ -22,7 +24,8 @@ const Profile = ({ token }) => {
 
   useEffect(() => {
     fetchUserData();
-  }, [token, refreshTrigger]);  // Depend on token and a refresh trigger
+  }, [token, refreshTrigger]);
+
 
   if (error) {
     return <div>{error}</div>;
@@ -32,24 +35,27 @@ const Profile = ({ token }) => {
     return <p>Loading...</p>;
   }
 
-  // Displaying user information along with any test results
   return (
     <div>
       <h1>Welcome, {userData.username}!</h1>
       <p>Email: {userData.email}</p>
 
+      <h2>Your House Result</h2>
+      <p>
+        You belong to: {userData.testResults?.[0]?.houseResult || "No test taken yet"}
+      </p>
       {/* Display Wand Test Result if available */}
       <h2>Your Wand Test Result</h2>
-      <p>
-        {userData.testResults?.length > 0 ? (
-          <div>
-            <p>Wand Description: {userData.testResults[0].wandResult}</p>
+      <div>
+      {userData.wandTestResults?.length > 0 ? (
+    <div>
+      <p>Wand Description: {userData.wandTestResults[0].result}</p>
             {/* Display more details if needed */}
           </div>
         ) : (
           "No wand test taken yet"
         )}
-      </p>
+      </div>
     </div>
   );
 };
