@@ -78,7 +78,7 @@ function App() {
       <Navbar isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
       <div>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<Index isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>} />
           <Route path="/register" element={<Register setToken={setToken} setUser={setUser} />} />
           <Route path="/login" element={<Login setToken={setToken} />} />
           <Route
