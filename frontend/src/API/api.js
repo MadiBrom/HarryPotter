@@ -270,3 +270,56 @@ export const fetchTestResults = async (token) => {
     console.error("Error fetching test results:", error);
   }
 };
+
+export const saveWandTestResults = async (token, testData) => {
+  try {
+    const response = await fetch(`${api_url}/wandTestResults`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify(testData),
+    });
+    console.log("Sending testData:", testData);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Error saving wand test results:", errorData.message);
+      throw new Error(errorData.message || "Failed to save wand test results.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("API Error in saveWandTestResults:", error);
+    throw error;
+  }
+};
+
+// Update Wand Test Results
+export const updateWandTestResults = async (userId, wandResult, answers, token) => {
+  try {
+    const response = await fetch(`${api_url}/wand-test-results/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`, // Include the JWT token in the Authorization header
+      },
+      body: JSON.stringify({
+        wandResult,
+        answers,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Error updating wand test results:", errorData.message);
+      throw new Error(errorData.message);
+    }
+
+    return await response.json(); // Return the updated test results
+  } catch (error) {
+    console.error("Error updating wand test results:", error);
+    throw error; // Propagate the error
+  }
+};

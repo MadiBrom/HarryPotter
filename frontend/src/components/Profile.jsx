@@ -6,7 +6,8 @@ const Profile = ({ token }) => {
   const [error, setError] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);  // **Trigger state**
 
-  
+
+
   const fetchUserData = async () => {
     try {
       const user = await getUser(token);
@@ -43,6 +44,18 @@ const Profile = ({ token }) => {
       <p>
         You belong to: {userData.testResults?.[0]?.houseResult || "No test taken yet"}
       </p>
+      {/* Display Wand Test Result if available */}
+      <h2>Your Wand Test Result</h2>
+      <div>
+      {userData.wandTestResults?.length > 0 ? (
+    <div>
+      <p>Wand Description: {userData.wandTestResults[0].result}</p>
+            {/* Display more details if needed */}
+          </div>
+        ) : (
+          "No wand test taken yet"
+        )}
+      </div>
     </div>
   );
 };
