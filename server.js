@@ -382,6 +382,30 @@ app.post("/api/wand-results", async (req, res) => {
   }
 });
 
+app.put("/api/update-profile", authenticateToken, async (req, res) => {
+  try {
+    const { username, email, password, profilePicUrl } = req.body;
+    const userId = req.user.userId;
+
+    const updateData = {};
+    if (username) updateData.username = username;
+    if (email) updateData.email = email;
+    if (password) updateData.password = await bcrypt.hash(password, 10); // Hash new password
+    if (profilePicUrl) updateData.profilePicUrl = profilePicUrl;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: updateData
+    });
+
+    res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    res.status(500).json({ error: "Failed to update profile." });
+  }
+});
+
+
 const fs = require('fs');
 const dir = './uploads';
 if (!fs.existsSync(dir)){

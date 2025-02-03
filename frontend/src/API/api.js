@@ -382,3 +382,25 @@ export async function uploadProfilePic(formData, token) {
       throw error; 
   }
 }
+
+export async function updateUserProfile(token, updateData) {
+  try {
+    const response = await fetch(`${api_url}/update-profile`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(updateData)
+    });
+
+    if (!response.ok) {
+      throw new Error("Profile update failed.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("❌ Error updating profile:", error);
+    throw error;
+  }
+}
