@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { saveWandTestResults } from '../API/api';// Adjust the import path to your API helper file
+import { getUser, saveWandTestResults, updateWandTestResults, createWandTestResult } from '../API/api';// Adjust the import path to your API helper file
 
 // -----------------
 // Wood Questions
@@ -85,18 +85,46 @@ const initialScores = {
   length: { short: 0, medium: 0, long: 0 },
 };
 
-const WandTest = ({token, refreshProfile}) => {
+const WandTest = ({user, token, refreshProfile}) => {
+  const [userData, setUserData] = useState("")
   // State to track current section/question
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [sectionScores, setSectionScores] = useState(initialScores);
   const [showResult, setShowResult] = useState(false);
   
+
+  
   // New state to store the user's chosen answers
   const [userAnswers, setUserAnswers] = useState([]);
 
   const currentSection = sections[currentSectionIndex];
   const currentQuestion = currentSection.questions[currentQuestionIndex];
+
+  const submitWandTestResults = async () => {
+    console.log("🔄 Preparing to submit wand test results...");
+
+    // ✅ Corrected: Use getFinalWandDescription() instead of undefined generateWandResult()
+    const generatedWandResult = getFinalWandDescription();
+
+    if (!generatedWandResult) {
+        console.error("❌ Missing wand details: Ensure all wand properties are set before submission.");
+        return;
+    }
+
+    const testData = {
+        userId: user.id,
+        wandResult: generatedWandResult,
+        answers: userAnswers, // ✅ Use userAnswers instead of answers
+    };
+
+    try {
+        await saveWandTestResults(token, testData);
+        console.log("✅ Wand test results saved successfully!");
+    } catch (error) {
+        console.error("❌ Error submitting wand test results:", error);
+    }
+};
 
   // Handle option selection: update scores, record answer, then advance
   const handleOptionClick = (option) => {
@@ -205,23 +233,50 @@ const WandTest = ({token, refreshProfile}) => {
 // After test completion, call the API to save the test results.
 useEffect(() => {
   const saveResults = async () => {
-    if (showResult && token) {
-      const testData = {
-          wandResult: getFinalWandDescription(),
-          answers: userAnswers,
-      };
-
-      try {
-          const response = await saveWandTestResults(token, testData);
-          console.log("Wand test results saved:", response);
-      } catch (error) {
-          console.error("Error saving wand test results:", error);
+    if (!showResult || !user || !token) {
+      console.warn("⚠️ `saveResults` skipped because showResult is false or missing data.", {
+        user,
+        token,
+        showResult,
+      });
+      return;
+    }
+  
+    console.log("🔹 Token before API call:", token); // Debugging
+  
+    const testData = {
+      userId: user.id,
+      wandResult: getFinalWandDescription(),
+      answers: userAnswers,
+    };
+  
+    try {
+      if (user.testResults && user.testResults.length > 0) {
+        console.log("🔄 Updating existing wand test results...");
+        const response = await updateWandTestResults(user.id, testData, token);
+        console.log("✅ Wand test results updated:", response);
+      } else {
+        console.log("➕ Creating a new wand test result...");
+        const response = await createWandTestResult(user.id, testData, token);
+        console.log("✅ New wand test result created:", response);
       }
+  
+      if (refreshProfile) {
+        refreshProfile();
+      }
+    } catch (error) {
+      console.error("❌ Error saving wand test results:", error);
     }
   };
+  
+  if (user && token && showResult) {  
+    saveResults();
+  } else {
+    console.warn("⚠️ `saveResults` skipped because showResult is false or missing data.");
+  }
+}, [user, token, showResult]); // ✅ Runs when user, token, or showResult changes
 
-  saveResults();
-}, [showResult, userAnswers, token]);
+
 
 
   // Restart the test
@@ -258,9 +313,11 @@ useEffect(() => {
             >
               {option.label}
             </button>
+            
           ))}
+          
         </div>
-      )}
+      )}<button onClick={submitWandTestResults}>Submit</button>
     </div>
   );
 };
