@@ -427,8 +427,9 @@ export async function updateUserProfile(token, updateData) {
     throw error;
   }
 }
+
 export const fetchAllUsers = async (token) => {
-  console.log("🔵 Token being sent to API:", token); // Log before request
+  console.log("🔵 Fetching all users with token:", token);
 
   if (!token) {
     console.error("❌ No token provided!");
@@ -440,24 +441,29 @@ export const fetchAllUsers = async (token) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // Ensure token is passed
+        Authorization: `Bearer ${token}`, 
       },
     });
 
     if (!response.ok) {
       const errorMessage = await response.text();
-      console.error("❌ API Error Response:", errorMessage); // Log API error details
       throw new Error(`Failed to fetch users: ${errorMessage}`);
     }
 
-    const users = await response.json();
-    
-    // Ensure a default image is assigned if missing
-    return users.map(user => ({
+    let users = await response.json();
+
+    console.log("📡 Raw API Response:", users);
+
+    users = users.map(user => ({
       ...user,
-      profilePicUrl: user.profilePicUrl || "/uploads/default_pic.jpg"
+      profilePicUrl: (!user.profilePicUrl || user.profilePicUrl === "null" || user.profilePicUrl === "")
+        ? "/uploads/default_pic.jpg"
+        : user.profilePicUrl
     }));
 
+    console.log("✅ Updated Users with Profile Picture Fix:", users);
+
+    return users;
   } catch (error) {
     console.error("❌ Error fetching users:", error);
     throw error;

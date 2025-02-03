@@ -85,7 +85,7 @@ function App() {
           <Route path="/" element={<Index isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>} />
           <Route path="/register" element={<Register setToken={setToken} setUser={setUser} />} />
           <Route path="/registeradmin" element={<RegisterAdmin setToken={setToken} setUser={setUser} />} />
-          <Route path="/allusers" element={<AllUsers token={token} />} />
+          <Route path="/allusers" element={user?.isAdmin ? <AllUsers token={token} /> : <p>Access Denied</p>} />
 
           <Route path="/login" element={<Login setToken={setToken} setUser={setUser} />} />
           <Route

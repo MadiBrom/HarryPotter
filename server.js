@@ -11,8 +11,8 @@ const prisma = new PrismaClient();
 const app = express();
 
 // Middleware
-app.use(express.static('public'));
-app.use('/uploads', express.static('uploads'));app.use(express.json());
+app.use('/uploads', express.static('uploads'));
+app.use(express.json());
 app.use(cors({
   origin: "http://localhost:5173",  // Adjust to match your frontend port
   credentials: true,
@@ -209,33 +209,36 @@ app.post('/api/auth/logout', (req, res) => {
 
 
 // Protected route to get user data
-app.get("/api/user", authenticateToken, async (req, res) => {
+app.get("/api/users", authenticateToken, requireAdmin, async (req, res) => {
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: req.user.userId }, // ✅ Ensure this matches `token.userId`
-      include: { testResults: true, wandTestResults: true },
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        isAdmin: true,
+        profilePicUrl: true,
+      },
     });
 
-    console.log("🟢 User fetched from database:", user); // ✅ Log response
+    console.log("📡 Backend Response Before Fix:", users);
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
-    }
+    const sanitizedUsers = users.map(user => ({
+      ...user,
+      profilePicUrl: (!user.profilePicUrl || user.profilePicUrl === "null" || user.profilePicUrl === "")
+        ? "http://localhost:3000/uploads/default_pic.jpg"
+        : user.profilePicUrl
+    }));
 
-    res.status(200).json({
-      id: user.id,  // ✅ Ensure `id` is included in the response
-      username: user.username,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      profilePicUrl: user.profilePicUrl,
-      testResults: user.testResults,
-      wandTestResults: user.wandTestResults,
-    });
+    console.log("✅ Backend Response After Fix:", sanitizedUsers);
+
+    res.status(200).json(sanitizedUsers);
   } catch (error) {
-    console.error("❌ Error fetching user data:", error);
-    res.status(500).json({ message: "Error fetching user data." });
+    console.error("❌ Error fetching users:", error);
+    res.status(500).json({ message: "Error fetching users." });
   }
 });
+
 
 
 
@@ -455,20 +458,6 @@ app.put("/api/update-profile", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Failed to update profile." });
   }
 });
-
-// Fetch all users (Admin Only)
-app.get("/api/users", authenticateToken, requireAdmin, async (req, res) => {
-  try {
-    const users = await prisma.user.findMany({
-      select: { id: true, username: true, email: true, isAdmin: true, profilePicUrl: true }
-    });
-    res.status(200).json(users);
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    res.status(500).json({ message: "Error fetching users." });
-  }
-});
-
 
 
 const fs = require('fs');
