@@ -296,30 +296,55 @@ export const saveWandTestResults = async (token, testData) => {
   }
 };
 
-// Update Wand Test Results
-export const updateWandTestResults = async (userId, wandResult, answers, token) => {
+export const getWandTestResults = async (token, userId) => {
+  if (!userId) {
+    console.error("❌ Error: userId is undefined. Cannot fetch wand test.");
+    return null;
+  }
+
   try {
-    const response = await fetch(`${api_url}/wand-test-results/${userId}`, {
-      method: "PUT",
+    console.log(`🔍 Fetching wand test for userId: ${userId}`); // Debug log
+
+    const response = await fetch(`${api_url}/wand-test/${userId}`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`, // Include the JWT token in the Authorization header
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        wandResult,
-        answers,
-      }),
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Error updating wand test results:", errorData.message);
-      throw new Error(errorData.message);
+      if (response.status === 404) {
+        console.warn(`⚠️ No wand test found for userId: ${userId}`);
+        return null;
+      }
+      throw new Error(`Server responded with status ${response.status}`);
     }
 
-    return await response.json(); // Return the updated test results
+    const result = await response.json();
+    console.log(`✅ Wand test result fetched successfully:`, result);
+    return result;
+  } catch (error) {
+    console.error("🚨 Error fetching wand test results:", error);
+    return null;
+  }
+};
+
+
+export const updateWandTestResults = async (token, testData) => {
+  try {
+    const response = await fetch(`${api_url}/wand-test/${token}`, {
+      method: "PUT", // Update existing result
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(testData),
+    });
+
+    return await response.json();
   } catch (error) {
     console.error("Error updating wand test results:", error);
-    throw error; // Propagate the error
+    throw error;
   }
 };

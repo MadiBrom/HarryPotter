@@ -7,14 +7,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 model User {
   id       String     @id @default(uuid())
   username String
   email    String  @unique
   password String
-  testResults TestResult[] // Relationship with test results
-  wandTestResults WandTestResult[]
+  testResults TestResult[]
+  wandTestResults WandTestResult?  // ✅ Singular, one-to-one relationship
 }
 
 model TestResult {
@@ -24,14 +23,14 @@ model TestResult {
   answer      String?
   user        User     @relation(fields: [userId], references: [id])
 }
+
 model WandTestResult {
   id        Int      @id @default(autoincrement())
-  userId    String   @map("user_id")
+  userId    String   @unique   // ✅ Make `userId` unique to enforce a one-to-one relationship
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   result    String
-  answers   Json
+  answers   Json?
 
   user      User     @relation(fields: [userId], references: [id])
 }
-

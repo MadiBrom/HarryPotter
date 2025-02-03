@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { saveWandTestResults } from '../API/api';// Adjust the import path to your API helper file
+import { saveWandTestResults, updateWandTestResults, getWandTestResults } from '../API/api';// Adjust the import path to your API helper file
 
 // -----------------
 // Wood Questions
@@ -204,25 +204,35 @@ const WandTest = ({token, refreshProfile}) => {
 
 // After test completion, call the API to save the test results.
 useEffect(() => {
-  const saveResults = async () => {
+  const saveOrUpdateResults = async () => {
     if (showResult && token) {
       const testData = {
-          wandResult: getFinalWandDescription(),
-          answers: userAnswers,
+        wandResult: getFinalWandDescription(),
+        answers: userAnswers,
       };
 
       try {
+        // First, check if wand test results already exist
+        const existingWandResult = await getWandTestResults(token);
+
+        if (existingWandResult) {
+          // If a result exists, UPDATE it
+          const response = await updateWandTestResults(token, testData);
+          console.log("Wand test results updated:", response);
+        } else {
+          // If no result exists, SAVE a new one
           const response = await saveWandTestResults(token, testData);
           console.log("Wand test results saved:", response);
+          
+        }
       } catch (error) {
-          console.error("Error saving wand test results:", error);
+        console.error("Error saving or updating wand test results:", error);
       }
     }
   };
 
-  saveResults();
+  saveOrUpdateResults();
 }, [showResult, userAnswers, token]);
-
 
   // Restart the test
   const restartTest = () => {

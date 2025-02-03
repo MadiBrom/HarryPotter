@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { getUser } from "../API/api";
+import { getUser, getWandTestResults } from "../API/api";
 
 const Profile = ({ token }) => {
   const [userData, setUserData] = useState(null);
+  const [wandData, setWandData] = useState(null);
   const [error, setError] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);  // **Trigger state**
 
-
-
+  // Fetch User Data
   const fetchUserData = async () => {
     try {
       const user = await getUser(token);
@@ -16,6 +16,12 @@ const Profile = ({ token }) => {
         return;
       }
       setUserData(user);
+
+      // Fetch Wand Test Results (if user exists)
+      if (user.id) {
+        const wandResult = await getWandTestResults(token, user.id);
+        setWandData(wandResult);
+      }
     } catch (err) {
       setError("Failed to fetch user data. Please try again.");
       console.error("Error:", err);
@@ -25,7 +31,6 @@ const Profile = ({ token }) => {
   useEffect(() => {
     fetchUserData();
   }, [token, refreshTrigger]);
-
 
   if (error) {
     return <div>{error}</div>;
@@ -40,20 +45,22 @@ const Profile = ({ token }) => {
       <h1>Welcome, {userData.username}!</h1>
       <p>Email: {userData.email}</p>
 
+      {/* Display House Result */}
       <h2>Your House Result</h2>
       <p>
         You belong to: {userData.testResults?.[0]?.houseResult || "No test taken yet"}
       </p>
-      {/* Display Wand Test Result if available */}
+
+      {/* Display Wand Test Result */}
       <h2>Your Wand Test Result</h2>
       <div>
-      {userData.wandTestResults?.length > 0 ? (
-    <div>
-      <p>Wand Description: {userData.wandTestResults[0].result}</p>
-            {/* Display more details if needed */}
+        {wandData ? (
+          <div>
+            <p>Wand Description: {wandData.wandResult}</p>
+            {/* Display additional details if needed */}
           </div>
         ) : (
-          "No wand test taken yet"
+          <p>No wand test taken yet</p>
         )}
       </div>
     </div>

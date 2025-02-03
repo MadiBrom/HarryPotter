@@ -225,6 +225,90 @@ app.post("/api/wandTestResults", authenticateToken, async (req, res) => {
 });
 
 
+app.put("/api/wand-test/:userId", authenticateToken, async (req, res) => {
+  const { userId } = req.params; // Extract userId from URL params
+
+  // Ensure users can only update their own test results
+  if (userId !== req.user.userId) {
+    return res.status(403).json({ message: "Unauthorized to update this wand test result." });
+  }
+
+  const { wandResult, answers } = req.body;
+
+  if (!wandResult || !answers) {
+    return res.status(400).json({ message: "Wand result and answers are required." });
+  }
+
+  try {
+    // Find existing wand test result
+    const existingWandResult = await prisma.wandTestResult.findUnique({
+      where: { userId },
+    });
+
+    let updatedWandResult;
+
+    if (existingWandResult) {
+      // If result exists, update it
+      updatedWandResult = await prisma.wandTestResult.update({
+        where: { userId },
+        data: {
+          wandResult,
+          answers: JSON.stringify(answers), // Save answers as JSON
+        },
+      });
+    } else {
+      // If no result exists, create a new one
+      updatedWandResult = await prisma.wandTestResult.create({
+        data: {
+          userId,
+          wandResult,
+          answers: JSON.stringify(answers),
+        },
+      });
+    }
+
+    res.status(200).json({
+      message: "Wand test result updated successfully!",
+      wandTestResult: updatedWandResult,
+    });
+  } catch (error) {
+    console.error("Error updating wand test result:", error);
+    res.status(500).json({ message: "Error updating wand test result." });
+  }
+});
+
+router.get("/api/wand-test/:userId", authenticateToken, async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    console.log(`🔍 Fetching wand test result for userId: ${userId}`);
+
+    if (!userId) {
+      console.error("❌ Error: No userId provided in request.");
+      return res.status(400).json({ message: "Bad Request: userId is required." });
+    }
+
+    // Attempt to fetch the wand test result from the database
+    const wandTest = await prisma.wandTestResult.findUnique({
+      where: { userId },
+    });
+
+    // Log what Prisma returns
+    console.log("📝 Prisma Query Result:", wandTest);
+
+    if (!wandTest) {
+      console.warn(`⚠️ No wand test found for userId: ${userId}`);
+      return res.status(404).json({ message: "No wand test found." });
+    }
+
+    console.log(`✅ Wand test found:`, wandTest);
+    res.status(200).json(wandTest);
+  } catch (error) {
+    console.error("🚨 ERROR fetching wand test:", error);
+    res.status(500).json({ message: "Server error fetching wand test result.", error: error.message });
+  }
+});
+
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
