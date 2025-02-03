@@ -14,35 +14,37 @@ const Profile = ({ token, refreshProfile, setUser }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-    useEffect(() => {
-      const fetchUserData = async () => {
-        if (!token) return;
-    
-        try {
-          const user = await getUser(token);
-          if (user.error) {
-            setError(user.error);
-          } else {
-            setUserData(user);
-            setUser(user);
-    
-            // Ensure profilePicUrl does not get double prefixed
-            const cleanProfilePicUrl = user.profilePicUrl.startsWith("http") 
-              ? user.profilePicUrl 
-              : `http://localhost:3000${user.profilePicUrl}`;
-    
-            setProfilePicUrl(cleanProfilePicUrl);
-            setUsername(user.username);
-            setEmail(user.email);
-          }
-        } catch (err) {
-          console.error("Error fetching user:", err);
-          setError("Failed to fetch user data.");
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!token) return; // Make sure token exists
+  
+      try {
+        const user = await getUser(token);
+        if (user.error) {
+          setError(user.error);
+          return;
         }
-      };
-    
-      fetchUserData();
-    }, [token]);
+  
+        setUserData(user);
+        setUser(user);
+  
+        // Handle possibly null profilePicUrl safely
+        const cleanProfilePicUrl = user.profilePicUrl && user.profilePicUrl.startsWith("http")
+          ? user.profilePicUrl 
+          : `http://localhost:3000${user.profilePicUrl || '/default-profile.png'}`;
+  
+        setProfilePicUrl(cleanProfilePicUrl);
+        setUsername(user.username);
+        setEmail(user.email);
+      } catch (err) {
+        console.error("Error fetching user:", err);
+        setError("Failed to fetch user data.");
+      }
+    };
+  
+    fetchUserData();
+  }, [token, setUser]);
+  
     
 
   const handleFileChange = (event) => {
@@ -115,7 +117,7 @@ const Profile = ({ token, refreshProfile, setUser }) => {
       <div>
         <h2>Your Profile Picture</h2>
         <img
-          src={profilePicUrl || "http://localhost:3000/default-profile.png"}
+          src={profilePicUrl || "http://localhost:3000/default_pic.jpeg"}
           alt="Profile"
           style={{ width: "150px", height: "150px", borderRadius: "50%" }}
         />

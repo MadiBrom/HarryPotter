@@ -46,6 +46,18 @@ const authenticateToken = (req, res, next) => {
       next();
   });
 };
+const requireAdmin = (req, res, next) => {
+  if (!req.user.isAdmin) {
+    return res.status(403).json({ message: "Access denied. Admins only." });
+  }
+  next();
+};
+
+// Use it in your routes
+app.post("/api/admin/data", authenticateToken, requireAdmin, (req, res) => {
+  // Admin-only route logic
+});
+
 
 
 const storage = multer.diskStorage({
@@ -122,7 +134,7 @@ app.get("/test", (req, res) => {
 
 // Register route
 app.post("/api/auth/register", async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, isAdmin = false } = req.body; // Set isAdmin to false by default
   if (!username || !email || !password) {
     return res.status(400).json({ message: "Missing required fields." });
   }
@@ -130,7 +142,12 @@ app.post("/api/auth/register", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await prisma.user.create({
-      data: { username, email, password: hashedPassword },
+      data: {
+        username,
+        email,
+        password: hashedPassword,
+        isAdmin, // Use the provided isAdmin value or default to false
+      },
     });
     res.status(201).json({ message: "User registered successfully!", user: newUser });
   } catch (error) {
@@ -139,36 +156,32 @@ app.post("/api/auth/register", async (req, res) => {
   }
 });
 
+
 // Login route
 app.post("/api/auth/login", async (req, res) => {
   const { email, password } = req.body;
-
-  // Input validation
   if (!email || !password) {
     return res.status(400).json({ message: "Email and password are required." });
   }
 
   try {
-    // Find user by email
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: "Invalid login credentials." });
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "1h" });
-
-    // Send response with token and user data
+    const token = jwt.sign({ userId: user.id, isAdmin: user.isAdmin }, JWT_SECRET, { expiresIn: "1h" });
     res.status(200).json({
       message: "Login successful.",
       token,
-      user: { id: user.id, username: user.username, email: user.email }
+      user: { id: user.id, username: user.username, email: user.email, isAdmin: user.isAdmin }
     });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).json({ message: "Error during login.", error: error.message });
   }
 });
+
 
 app.post('/api/auth/logout', (req, res) => {
   // Add logout logic here, like clearing the session or invalidating the token.
