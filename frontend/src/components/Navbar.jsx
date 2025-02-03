@@ -18,11 +18,7 @@ const Navbar = ({ isLoggedIn, isAdmin, handleLogout }) => {
           <button onClick={() => navigate("/wandtest")}>Wand Test</button>
           <button onClick={() => navigate("/profile")}>Profile</button>
           {isAdmin && (
-            <button onClick={() => navigate("/registeradmin")}>Register Admin</button>
-            
-          )}
-                    {isAdmin && (
-            <button onClick={() => navigate("/allusers")}>Users List</button>
+                      <button onClick={() => navigate("/admindash")}>Dashboard</button>
             
           )}
           <button onClick={handleLogoutClick}>Logout</button>
@@ -32,6 +28,7 @@ const Navbar = ({ isLoggedIn, isAdmin, handleLogout }) => {
         <>
           <button onClick={() => navigate("/login")}>Login</button>
           <button onClick={() => navigate("/register")}>Register</button>
+
         </>
       )}
     </nav>

@@ -10,6 +10,8 @@ import Test from "./components/Test";
 import WandTest from "./components/WandTest";
 import RegisterAdmin from "./components/RegisterAdmin";
 import AllUsers from "./components/AllUsers";
+import AdminDashboard from "./components/AdminDashboard";
+import SingleUser from "./components/SingleUser";
 
 // ✅ Function to get stored token
 const getAuthToken = () => {
@@ -95,6 +97,8 @@ function App() {
 
           <Route path="/wandtest" element={<WandTest token={token} refreshProfile={fetchUser} user={user} />} />
           <Route path="/test" element={<Test token={token} refreshProfile={fetchUser} />} />
+          <Route path="/admindash" element={<AdminDashboard token={token} setToken={setToken} setUser={setUser} />} />
+          <Route path="/users/:userId" element={<SingleUser token={token}/> }/>
         </Routes>
       </div>
     </Router>
