@@ -173,7 +173,7 @@ export const fetchSpells = async () => {
 
 export const getUser = async (token) => {
   if (!token) {
-    console.error("No token provided to getUser");
+    console.error("❌ No token provided to getUser");
     return { error: "No token provided" };
   }
 
@@ -186,19 +186,21 @@ export const getUser = async (token) => {
       },
     });
 
-    console.log("Token passed to getUser:", token);
+    console.log("🔵 Token passed to getUser:", token);
 
     if (!response.ok) {
-      throw new Error(`Error: ${response.status} - ${response.statusText}`);
+      throw new Error(`❌ API Error: ${response.status} - ${response.statusText}`);
     }
 
-    return await response.json();
+    const userData = await response.json();
+    console.log("🟢 Received user data from API:", userData); // ✅ Log full response
+
+    return userData; // ✅ Ensure response includes `id`
   } catch (error) {
-    console.error("Error in getUser:", error);
+    console.error("❌ Error in getUser:", error);
     return { error: error.message };
   }
 };
-
 
 export const updateTestResults = async (userId, houseResult, answers, token) => {
   try {
@@ -425,3 +427,39 @@ export async function updateUserProfile(token, updateData) {
     throw error;
   }
 }
+export const fetchAllUsers = async (token) => {
+  console.log("🔵 Token being sent to API:", token); // Log before request
+
+  if (!token) {
+    console.error("❌ No token provided!");
+    throw new Error("Authentication token is missing.");
+  }
+
+  try {
+    const response = await fetch(`${api_url}/users`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Ensure token is passed
+      },
+    });
+
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      console.error("❌ API Error Response:", errorMessage); // Log API error details
+      throw new Error(`Failed to fetch users: ${errorMessage}`);
+    }
+
+    const users = await response.json();
+    
+    // Ensure a default image is assigned if missing
+    return users.map(user => ({
+      ...user,
+      profilePicUrl: user.profilePicUrl || "/uploads/default_pic.jpg"
+    }));
+
+  } catch (error) {
+    console.error("❌ Error fetching users:", error);
+    throw error;
+  }
+};

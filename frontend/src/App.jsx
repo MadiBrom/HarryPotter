@@ -9,6 +9,7 @@ import Profile from "./components/Profile";
 import Test from "./components/Test";
 import WandTest from "./components/WandTest";
 import RegisterAdmin from "./components/RegisterAdmin";
+import AllUsers from "./components/AllUsers";
 
 // ✅ Function to get stored token
 const getAuthToken = () => {
@@ -24,22 +25,23 @@ function App() {
   // ✅ Fetch user details when token is available
   const fetchUser = async () => {
     if (!token) return;
-
+  
     try {
       console.log("🔵 Fetching user with token:", token);
       const userData = await getUser(token);
-
-      if (userData && userData.username) {
+  
+      if (userData && userData.id) {  // ✅ Ensure `id` exists in the response
         console.log("🟢 User data received:", userData);
         setUser(userData);
+        setIsAdmin(userData.isAdmin || false);  // ✅ Set admin state
         setIsLoggedIn(true);
       } else {
-        console.warn("⚠️ No user data received.");
+        console.warn("⚠️ No valid user data received.");
         setUser(null);
         setIsLoggedIn(false);
       }
     } catch (error) {
-      console.error("❌ Error fetching user:", error);
+      console.error("❌ Error in fetchUser:", error);
       setUser(null);
       setIsLoggedIn(false);
     }
@@ -83,8 +85,9 @@ function App() {
           <Route path="/" element={<Index isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>} />
           <Route path="/register" element={<Register setToken={setToken} setUser={setUser} />} />
           <Route path="/registeradmin" element={<RegisterAdmin setToken={setToken} setUser={setUser} />} />
+          <Route path="/allusers" element={<AllUsers token={token} />} />
 
-          <Route path="/login" element={<Login setToken={setToken} />} />
+          <Route path="/login" element={<Login setToken={setToken} setUser={setUser} />} />
           <Route
   path="/profile"
   element={<Profile token={token} refreshProfile={fetchUser} setUser={setUser} />}

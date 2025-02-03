@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { loginUser } from "../API/api"; // Ensure correct import
 
-const Login = ({setToken}) => {
+const Login = ({setToken, setUser}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
 
   const navigate = useNavigate(); // Initialize useNavigate
 

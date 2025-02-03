@@ -31,7 +31,7 @@ const Profile = ({ token, refreshProfile, setUser }) => {
         // Handle possibly null profilePicUrl safely
         const cleanProfilePicUrl = user.profilePicUrl && user.profilePicUrl.startsWith("http")
           ? user.profilePicUrl 
-          : `http://localhost:3000${user.profilePicUrl || '/default-profile.png'}`;
+          : `http://localhost:3000${user.profilePicUrl || '/uploads/default_pic.jpg'}`;
   
         setProfilePicUrl(cleanProfilePicUrl);
         setUsername(user.username);
@@ -117,7 +117,7 @@ const Profile = ({ token, refreshProfile, setUser }) => {
       <div>
         <h2>Your Profile Picture</h2>
         <img
-          src={profilePicUrl || "http://localhost:3000/default_pic.jpeg"}
+          src={profilePicUrl || "http://localhost:3000/uploads/default_pic.jpg"}
           alt="Profile"
           style={{ width: "150px", height: "150px", borderRadius: "50%" }}
         />

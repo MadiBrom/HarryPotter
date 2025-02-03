@@ -47,11 +47,15 @@ const authenticateToken = (req, res, next) => {
   });
 };
 const requireAdmin = (req, res, next) => {
-  if (!req.user.isAdmin) {
+  console.log("🛂 Checking Admin Access for:", req.user); // Log user data
+  if (!req.user || !req.user.isAdmin) {
+    console.error("🚫 Access Denied: User is not an admin.");
     return res.status(403).json({ message: "Access denied. Admins only." });
   }
+  console.log("✅ Admin Access Granted");
   next();
 };
+
 
 // Use it in your routes
 app.post("/api/admin/data", authenticateToken, requireAdmin, (req, res) => {
@@ -146,14 +150,15 @@ app.post("/api/auth/register", async (req, res) => {
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await prisma.user.create({
-      data: {
-        username,
-        email,
-        password: hashedPassword,
-        isAdmin: isValidAdminKey ? isAdmin : false,  // Only set isAdmin if the secret key matches
-      },
-    });
+const newUser = await prisma.user.create({
+  data: {
+    username,
+    email,
+    password: hashedPassword,
+    isAdmin: isValidAdminKey ? isAdmin : false,
+    profilePicUrl: profilePicUrl || "/uploads/default_pic.jpg" // Ensure default pic
+  },
+});
     res.status(201).json({ message: "User registered successfully!", user: newUser });
   } catch (error) {
     console.error("Error registering user:", error);
@@ -174,8 +179,16 @@ app.post("/api/auth/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid login credentials." });
     }
 
-    // Ensure token includes isAdmin
-    const token = jwt.sign({ userId: user.id, isAdmin: user.isAdmin }, JWT_SECRET, { expiresIn: "1h" });
+    console.log("🟢 User logging in:", user); // Log user info
+
+    // Ensure token includes isAdmin flag
+    const token = jwt.sign(
+      { userId: user.id, isAdmin: user.isAdmin },
+      JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    console.log("🟡 Generated Token:", token); // Log token before sending
 
     res.status(200).json({
       message: "Login successful.",
@@ -188,6 +201,7 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
+
 app.post('/api/auth/logout', (req, res) => {
   // Add logout logic here, like clearing the session or invalidating the token.
   res.status(200).json({ message: 'Logged out successfully' });
@@ -195,24 +209,34 @@ app.post('/api/auth/logout', (req, res) => {
 
 
 // Protected route to get user data
-// Protected route to get user data with test results
 app.get("/api/user", authenticateToken, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id: req.user.userId },
-      include: { testResults: true, wandTestResults: true },  // Including wand results
+      where: { id: req.user.userId }, // ✅ Ensure this matches `token.userId`
+      include: { testResults: true, wandTestResults: true },
     });
+
+    console.log("🟢 User fetched from database:", user); // ✅ Log response
 
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
 
-    res.status(200).json(user);  // Returning the user with wand test results
+    res.status(200).json({
+      id: user.id,  // ✅ Ensure `id` is included in the response
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      profilePicUrl: user.profilePicUrl,
+      testResults: user.testResults,
+      wandTestResults: user.wandTestResults,
+    });
   } catch (error) {
-    console.error("Error fetching user data:", error);
+    console.error("❌ Error fetching user data:", error);
     res.status(500).json({ message: "Error fetching user data." });
   }
 });
+
 
 
 app.get("/api/test-results", authenticateToken, async (req, res) => {
@@ -328,22 +352,31 @@ app.post("/api/wandTestResults", authenticateToken, async (req, res) => {
 app.get("/api/user", authenticateToken, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id: req.user.userId },
-      include: { testResults: true, wandTestResults: true },  // Ensure wandResults is included
+      where: { id: req.user.userId }, // ✅ Ensure this matches `token.userId`
+      include: { testResults: true, wandTestResults: true },
     });
 
-    console.log("User fetched from database:", JSON.stringify(user, null, 2)); // Log response
+    console.log("🟢 User fetched from database:", user); // ✅ Log response
 
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
 
-    res.status(200).json(user); // Send user data back
+    res.status(200).json({
+      id: user.id,  // ✅ Ensure `id` is included in the response
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      profilePicUrl: user.profilePicUrl,
+      testResults: user.testResults,
+      wandTestResults: user.wandTestResults,
+    });
   } catch (error) {
-    console.error("Error fetching user data:", error);
+    console.error("❌ Error fetching user data:", error);
     res.status(500).json({ message: "Error fetching user data." });
   }
 });
+
 
 app.put("/api/wand-results/:id", async (req, res) => {
   try {
@@ -422,6 +455,20 @@ app.put("/api/update-profile", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Failed to update profile." });
   }
 });
+
+// Fetch all users (Admin Only)
+app.get("/api/users", authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: { id: true, username: true, email: true, isAdmin: true, profilePicUrl: true }
+    });
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ message: "Error fetching users." });
+  }
+});
+
 
 
 const fs = require('fs');

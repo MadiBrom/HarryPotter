@@ -19,6 +19,11 @@ const Navbar = ({ isLoggedIn, isAdmin, handleLogout }) => {
           <button onClick={() => navigate("/profile")}>Profile</button>
           {isAdmin && (
             <button onClick={() => navigate("/registeradmin")}>Register Admin</button>
+            
+          )}
+                    {isAdmin && (
+            <button onClick={() => navigate("/allusers")}>Users List</button>
+            
           )}
           <button onClick={handleLogoutClick}>Logout</button>
         </>
