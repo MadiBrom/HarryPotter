@@ -11,15 +11,14 @@ const prisma = new PrismaClient();
 const app = express();
 
 // Middleware
-app.use(express.static('public'));
-app.use('/uploads', express.static('uploads'));app.use(express.json());
+app.use('/uploads', express.static('uploads'));
+app.use(express.json());
 app.use(cors({
   origin: "http://localhost:5173",  // Adjust to match your frontend port
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
   methods: ["GET", "POST", "PUT", "DELETE"]
 }));
-
 
 // JWT secret
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -46,6 +45,22 @@ const authenticateToken = (req, res, next) => {
       next();
   });
 };
+const requireAdmin = (req, res, next) => {
+  console.log("🛂 Checking Admin Access for:", req.user); // Log user data
+  if (!req.user || !req.user.isAdmin) {
+    console.error("🚫 Access Denied: User is not an admin.");
+    return res.status(403).json({ message: "Access denied. Admins only." });
+  }
+  console.log("✅ Admin Access Granted");
+  next();
+};
+
+
+// Use it in your routes
+app.post("/api/admin/data", authenticateToken, requireAdmin, (req, res) => {
+  // Admin-only route logic
+});
+
 
 
 const storage = multer.diskStorage({
@@ -121,17 +136,28 @@ app.get("/test", (req, res) => {
 });
 
 // Register route
+// Example backend code adjustment in your registration route
 app.post("/api/auth/register", async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, isAdmin, secretKey } = req.body;
+
+  // Optional: Check a secret key to allow setting isAdmin
+  const isValidAdminKey = secretKey && secretKey === process.env.ADMIN_SECRET_KEY;
+  
   if (!username || !email || !password) {
     return res.status(400).json({ message: "Missing required fields." });
   }
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await prisma.user.create({
-      data: { username, email, password: hashedPassword },
-    });
+const newUser = await prisma.user.create({
+  data: {
+    username,
+    email,
+    password: hashedPassword,
+    isAdmin: isValidAdminKey ? isAdmin : false,
+    profilePicUrl: profilePicUrl || "/uploads/default_pic.jpg" // Ensure default pic
+  },
+});
     res.status(201).json({ message: "User registered successfully!", user: newUser });
   } catch (error) {
     console.error("Error registering user:", error);
@@ -139,36 +165,41 @@ app.post("/api/auth/register", async (req, res) => {
   }
 });
 
+
+
 // Login route
 app.post("/api/auth/login", async (req, res) => {
   const { email, password } = req.body;
 
-  // Input validation
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email and password are required." });
-  }
-
   try {
-    // Find user by email
     const user = await prisma.user.findUnique({ where: { email } });
+
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: "Invalid login credentials." });
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "1h" });
+    console.log("🟢 User logging in:", user); // Log user info
 
-    // Send response with token and user data
+    // Ensure token includes isAdmin flag
+    const token = jwt.sign(
+      { userId: user.id, isAdmin: user.isAdmin },
+      JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    console.log("🟡 Generated Token:", token); // Log token before sending
+
     res.status(200).json({
       message: "Login successful.",
       token,
-      user: { id: user.id, username: user.username, email: user.email }
+      user: { id: user.id, username: user.username, email: user.email, isAdmin: user.isAdmin }
     });
   } catch (error) {
     console.error("Error during login:", error);
-    res.status(500).json({ message: "Error during login.", error: error.message });
+    res.status(500).json({ message: "Error during login." });
   }
 });
+
 
 app.post('/api/auth/logout', (req, res) => {
   // Add logout logic here, like clearing the session or invalidating the token.
@@ -177,24 +208,37 @@ app.post('/api/auth/logout', (req, res) => {
 
 
 // Protected route to get user data
-// Protected route to get user data with test results
-app.get("/api/user", authenticateToken, async (req, res) => {
+app.get("/api/users", authenticateToken, requireAdmin, async (req, res) => {
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: req.user.userId },
-      include: { testResults: true, wandTestResults: true },  // Including wand results
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        isAdmin: true,
+        profilePicUrl: true,
+      },
     });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
-    }
+    console.log("📡 Backend Response Before Fix:", users);
 
-    res.status(200).json(user);  // Returning the user with wand test results
+    const sanitizedUsers = users.map(user => ({
+      ...user,
+      profilePicUrl: (!user.profilePicUrl || user.profilePicUrl === "null" || user.profilePicUrl === "")
+        ? "http://localhost:3000/uploads/default_pic.jpg"
+        : user.profilePicUrl
+    }));
+
+    console.log("✅ Backend Response After Fix:", sanitizedUsers);
+
+    res.status(200).json(sanitizedUsers);
   } catch (error) {
-    console.error("Error fetching user data:", error);
-    res.status(500).json({ message: "Error fetching user data." });
+    console.error("❌ Error fetching users:", error);
+    res.status(500).json({ message: "Error fetching users." });
   }
 });
+
+
 
 
 app.get("/api/test-results", authenticateToken, async (req, res) => {
@@ -310,22 +354,31 @@ app.post("/api/wandTestResults", authenticateToken, async (req, res) => {
 app.get("/api/user", authenticateToken, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id: req.user.userId },
-      include: { testResults: true, wandTestResults: true },  // Ensure wandResults is included
+      where: { id: req.user.userId }, // ✅ Ensure this matches `token.userId`
+      include: { testResults: true, wandTestResults: true },
     });
 
-    console.log("User fetched from database:", JSON.stringify(user, null, 2)); // Log response
+    console.log("🟢 User fetched from database:", user); // ✅ Log response
 
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
 
-    res.status(200).json(user); // Send user data back
+    res.status(200).json({
+      id: user.id,  // ✅ Ensure `id` is included in the response
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      profilePicUrl: user.profilePicUrl,
+      testResults: user.testResults,
+      wandTestResults: user.wandTestResults,
+    });
   } catch (error) {
-    console.error("Error fetching user data:", error);
+    console.error("❌ Error fetching user data:", error);
     res.status(500).json({ message: "Error fetching user data." });
   }
 });
+
 
 app.put("/api/wand-results/:id", async (req, res) => {
   try {
@@ -405,6 +458,31 @@ app.put("/api/update-profile", authenticateToken, async (req, res) => {
   }
 });
 
+
+
+// Route to get a single user by ID
+app.get('/api/user/:userId', authenticateToken, async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        testResults: true,
+        wandTestResults: true
+      }
+    });
+
+    if (!user) {
+      return res.status(404).send('User not found'); // Send 404 if no user found
+    }
+
+    res.json(user); // Send the user data
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).send('Internal server error'); // Handle unexpected errors
+  }
+});
 
 const fs = require('fs');
 const dir = './uploads';

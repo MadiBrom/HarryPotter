@@ -2,36 +2,35 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { loginUser } from "../API/api"; // Ensure correct import
 
-const Login = ({setToken}) => {
+const Login = ({setToken, setUser}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
 
   const navigate = useNavigate(); // Initialize useNavigate
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
   
     try {
       const data = await loginUser({ email, password });
   
       if (data.token) {
-        setToken(data.token); // Store token in state instead of localStorage
-        console.log("Token received:", data.token);
+        setToken(data.token); // Store token in state/context
+        setUser(data.user);   // Ensure user object is stored, including isAdmin
   
-        // Show success message and navigate to /profile
-        setSuccess("Login successful! Redirecting...");
-        setTimeout(() => {
-          navigate("/profile");
-        }, 1000);
+        console.log("🔹 User data after login:", data.user); // Debugging
+        console.log("🔹 isAdmin:", data.user.isAdmin); // Check if it's being stored
+  
+        navigate("/profile"); // Redirect after login
       } else {
-        setError("Invalid credentials or missing token.");
+        setError("Invalid credentials.");
       }
     } catch (err) {
-      setError(err.message || "Login failed. Please try again.");
+      setError(err.message || "Login failed.");
       console.error("Login error:", err);
     }
   };

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const Navbar = ({ isLoggedIn, handleLogout }) => {
+const Navbar = ({ isLoggedIn, isAdmin, handleLogout }) => {
   const navigate = useNavigate();
 
   const handleLogoutClick = () => {
@@ -17,6 +17,14 @@ const Navbar = ({ isLoggedIn, handleLogout }) => {
           <button onClick={() => navigate("/test")}>House Test</button>
           <button onClick={() => navigate("/wandtest")}>Wand Test</button>
           <button onClick={() => navigate("/profile")}>Profile</button>
+          {isAdmin && (
+            <button onClick={() => navigate("/registeradmin")}>Register Admin</button>
+            
+          )}
+                    {isAdmin && (
+            <button onClick={() => navigate("/allusers")}>Users List</button>
+            
+          )}
           <button onClick={handleLogoutClick}>Logout</button>
         </>
       )}

@@ -36,6 +36,27 @@ const createNewUser = async (username, email, password) => {
 
 export default createNewUser;
 
+// In your src/API/api.js
+
+export const registerUser = async ({ username, email, password, isAdmin = false, secretKey }) => {
+  const response = await fetch(`${api_url}/auth/register`, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+          username,
+          email,
+          password,
+          isAdmin,
+          secretKey  // Include secretKey if you are using it for admin registration
+      })
+  });
+  const data = await response.json();
+  return data; // Return the response data for further processing
+};
+
+
 // Login User
 export async function loginUser({ email, password }) {
   console.log("Sending login request with:", { email, password }); // Debug log
@@ -152,7 +173,7 @@ export const fetchSpells = async () => {
 
 export const getUser = async (token) => {
   if (!token) {
-    console.error("No token provided to getUser");
+    console.error("❌ No token provided to getUser");
     return { error: "No token provided" };
   }
 
@@ -165,19 +186,21 @@ export const getUser = async (token) => {
       },
     });
 
-    console.log("Token passed to getUser:", token);
+    console.log("🔵 Token passed to getUser:", token);
 
     if (!response.ok) {
-      throw new Error(`Error: ${response.status} - ${response.statusText}`);
+      throw new Error(`❌ API Error: ${response.status} - ${response.statusText}`);
     }
 
-    return await response.json();
+    const userData = await response.json();
+    console.log("🟢 Received user data from API:", userData); // ✅ Log full response
+
+    return userData; // ✅ Ensure response includes `id`
   } catch (error) {
-    console.error("Error in getUser:", error);
+    console.error("❌ Error in getUser:", error);
     return { error: error.message };
   }
 };
-
 
 export const updateTestResults = async (userId, houseResult, answers, token) => {
   try {
@@ -404,3 +427,75 @@ export async function updateUserProfile(token, updateData) {
     throw error;
   }
 }
+
+export const fetchAllUsers = async (token) => {
+  console.log("🔵 Fetching all users with token:", token);
+
+  if (!token) {
+    console.error("❌ No token provided!");
+    throw new Error("Authentication token is missing.");
+  }
+
+  try {
+    const response = await fetch(`${api_url}/users`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, 
+      },
+    });
+
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      throw new Error(`Failed to fetch users: ${errorMessage}`);
+    }
+
+    let users = await response.json();
+
+    console.log("📡 Raw API Response:", users);
+
+    users = users.map(user => ({
+      ...user,
+      profilePicUrl: (!user.profilePicUrl || user.profilePicUrl === "null" || user.profilePicUrl === "")
+        ? "/uploads/default_pic.jpg"
+        : user.profilePicUrl
+    }));
+
+    console.log("✅ Updated Users with Profile Picture Fix:", users);
+
+    return users;
+  } catch (error) {
+    console.error("❌ Error fetching users:", error);
+    throw error;
+  }
+};
+export const getSingleUser = async (userId, token) => {
+  if (!token) {
+    console.error("❌ No token provided to getSingleUser");
+    return { error: "No token provided" };
+  }
+
+  try {
+    const response = await fetch(`${api_url}/user/${userId}`, { // Make sure the endpoint matches your API's route for fetching a single user
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("🔵 Token passed to getSingleUser:", token);
+
+    if (!response.ok) {
+      throw new Error(`❌ API Error: ${response.status} - ${response.statusText}`);
+    }
+
+    const userData = await response.json();
+    console.log("🟢 Received user data from API:", userData);
+
+    return userData;
+  } catch (error) {
+    console.error("❌ Error in getSingleUser:", error);
+    return { error: error.message };
+  }
+};
