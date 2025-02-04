@@ -499,3 +499,29 @@ export const getSingleUser = async (userId, token) => {
     return { error: error.message };
   }
 };
+
+// UserService.js
+
+const promoteUserToAdmin = async (userId, authToken) => {
+  try {
+    const response = await fetch(`${api_url}/promote/${userId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to promote user');
+    }
+
+    const data = await response.json();
+    return data; // or just return true if you don't need the response body
+  } catch (error) {
+    console.error('Error promoting user:', error);
+    throw error;
+  }
+}
+
+export { promoteUserToAdmin };

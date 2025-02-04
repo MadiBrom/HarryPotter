@@ -22,6 +22,7 @@ const RegisterAdmin = () => {
   };
 
   return (
+    <div className="register-admin-form">
     <form onSubmit={handleSubmit}>
       <input type="text" name="username" value={formData.username} onChange={handleChange} placeholder="Username" required />
       <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" required />
@@ -32,7 +33,7 @@ const RegisterAdmin = () => {
       </label>
       <input type="text" name="secretKey" value={formData.secretKey} onChange={handleChange} placeholder="Secret Key" />
       <button type="submit">Register</button>
-    </form>
+    </form></div>
   );
 };
 

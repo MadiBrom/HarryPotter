@@ -97,7 +97,7 @@ function App() {
 
           <Route path="/wandtest" element={<WandTest token={token} refreshProfile={fetchUser} user={user} />} />
           <Route path="/test" element={<Test token={token} refreshProfile={fetchUser} />} />
-          <Route path="/admindash" element={<AdminDashboard token={token} setToken={setToken} setUser={setUser} />} />
+          <Route path="/admindash" element={<AdminDashboard token={token} setToken={setToken} setUser={setUser} isAdmin={isAdmin} />} />
           <Route path="/users/:userId" element={<SingleUser token={token}/> }/>
         </Routes>
       </div>

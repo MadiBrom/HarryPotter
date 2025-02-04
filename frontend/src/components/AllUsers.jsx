@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
 import { fetchAllUsers } from "../API/api"; // Adjust import if necessary
+import "./dash.css"
 
 const AllUsers = ({ token }) => {
   const [users, setUsers] = useState([]);
@@ -32,7 +33,7 @@ const AllUsers = ({ token }) => {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div>
+    <div className="all-users">
       <h2>All Users</h2>
       <ul>
         {users.map((user) => (
@@ -44,8 +45,8 @@ const AllUsers = ({ token }) => {
                 onError={(e) => e.target.src = "/uploads/default_pic.jpg"}
                 style={{ width: "25px", height: "25px", borderRadius: "50%", marginRight: "10px" }}
               />
-              <strong>{user.username}</strong> - {user.email} {user.isAdmin && "(Admin)"}
-            </Link>
+              <strong>{user.username}</strong>  {user.isAdmin && "(Admin)"}</Link> {user.id} 
+            
           </li>
         ))}
       </ul>
