@@ -50,7 +50,7 @@ const AllUsers = ({ token }) => {
                 <img
                   src={user.profilePicUrl && user.profilePicUrl !== "null" && user.profilePicUrl.trim() !== "" ? user.profilePicUrl : "/uploads/default_pic.jpg"}
                   alt="Profile"
-                  onError={(e) => { e.target.src = "/uploads/default_pic.jpg"; }}
+                  onError={(e) => { e.target.src = "http://localhost:3000/uploads/default_pic.jpg"; }}
                   style={{ width: '30px', height: '30px', borderRadius: '50%', marginRight: '15px' }}
                 />
                 <strong>{user.username}</strong>
