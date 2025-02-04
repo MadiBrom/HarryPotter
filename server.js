@@ -233,24 +233,13 @@ app.get("/api/users", authenticateToken, requireAdmin, async (req, res) => {
         email: true,
         isAdmin: true,
         profilePicUrl: true,
+        bodyColor: true  // Include bodyColor in the selection
       },
     });
-
-    console.log("📡 Backend Response Before Fix:", users);
-
-    const sanitizedUsers = users.map(user => ({
-      ...user,
-      profilePicUrl: (!user.profilePicUrl || user.profilePicUrl === "null" || user.profilePicUrl === "")
-        ? "http://localhost:3000/uploads/default_pic.jpg"
-        : user.profilePicUrl
-    }));
-
-    console.log("✅ Backend Response After Fix:", sanitizedUsers);
-
-    res.status(200).json(sanitizedUsers);
+    res.json(users);
   } catch (error) {
-    console.error("❌ Error fetching users:", error);
-    res.status(500).json({ message: "Error fetching users." });
+    console.error("Failed to fetch users:", error);
+    res.status(500).send("Error fetching user data.");
   }
 });
 
@@ -386,12 +375,34 @@ app.get("/api/user", authenticateToken, async (req, res) => {
       email: user.email,
       isAdmin: user.isAdmin,
       profilePicUrl: user.profilePicUrl,
+      bodyColor: user.bodyColor,
       testResults: user.testResults,
       wandTestResults: user.wandTestResults,
     });
   } catch (error) {
     console.error("❌ Error fetching user data:", error);
     res.status(500).json({ message: "Error fetching user data." });
+  }
+});
+
+// Example Node.js/Express backend handler
+app.put('/api/user/:userId', async (req, res) => {
+  const { bodyColor, username, email, password, profilePicUrl } = req.body;
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: req.params.userId },
+      data: {
+        username,
+        email,
+        password, // Make sure to handle password updates securely
+        profilePicUrl,
+        bodyColor
+      }
+    });
+    res.json(updatedUser);
+  } catch (error) {
+    console.error("Failed to update user:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
@@ -451,54 +462,64 @@ app.post("/api/wand-results", async (req, res) => {
   }
 });
 
-app.put("/api/update-profile", authenticateToken, async (req, res) => {
+app.put('/api/update-profile', authenticateToken, async (req, res) => {
+  const { bodyColor, username, email, password, profilePicUrl } = req.body;
+  const userId = req.user.userId;
+
   try {
-    const { username, email, password, profilePicUrl } = req.body;
-    const userId = req.user.userId;
-
-    const updateData = {};
-    if (username) updateData.username = username;
-    if (email) updateData.email = email;
-    if (password) updateData.password = await bcrypt.hash(password, 10); // Hash new password
-    if (profilePicUrl) updateData.profilePicUrl = profilePicUrl;
-
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: updateData
+      data: {
+        username,
+        email,
+        password, // Ensure password is hashed if it's being changed
+        profilePicUrl,
+        bodyColor
+      }
     });
-
     res.json(updatedUser);
   } catch (error) {
-    console.error("Error updating user profile:", error);
-    res.status(500).json({ error: "Failed to update profile." });
+    console.error("Failed to update user:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
 
 
-// Route to get a single user by ID
-app.get('/api/user/:userId', authenticateToken, async (req, res) => {
-  const { userId } = req.params;
 
+// Route to get a single user by ID
+// Fetch a single user by ID
+app.get("/api/user/:userId", authenticateToken, async (req, res) => {
+  const { userId } = req.params;
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        testResults: true,
+        testResults: true, // include other related data as needed
         wandTestResults: true
       }
     });
 
     if (!user) {
-      return res.status(404).send('User not found'); // Send 404 if no user found
+      return res.status(404).json({ message: "User not found" });
     }
 
-    res.json(user); // Send the user data
+    res.json({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      profilePicUrl: user.profilePicUrl,
+      bodyColor: user.bodyColor, // ensure this is included
+      testResults: user.testResults,
+      wandTestResults: user.wandTestResults
+    });
   } catch (error) {
-    console.error('Error fetching user:', error);
-    res.status(500).send('Internal server error'); // Handle unexpected errors
+    console.error("Error fetching user data:", error);
+    res.status(500).json({ message: "Error fetching user data" });
   }
 });
+
 
 app.put('/api/promote/:userId', authenticate, async (req, res) => {
   try {
