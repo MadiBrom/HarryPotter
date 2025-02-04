@@ -1,0 +1,191 @@
+/* PromoteAdmin Component Styling */
+.promote-admin {
+    background-color: #fdf6e3; /* Light beige background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #ccc; /* Subtle border */
+  }
+  
+  .promote-admin input {
+    font-family: 'Georgia', serif;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: calc(100% - 22px); /* Full width minus padding and border */
+    box-sizing: border-box;
+  }
+  
+  .promote-admin button {
+    background-color: #6e4b3b; /* Dark brownish color */
+    color: #f1e6d8; /* Light beige text */
+    border: none;
+    padding: 12px 24px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    font-family: 'Georgia', serif;
+    font-size: 16px;
+  }
+  
+  .promote-admin button:hover {
+    background-color: #8e6f59; /* Lighter brown on hover */
+  }
+  
+  /* Additional base styling */
+  body {
+    background-color: #fffaec; /* Deep dark background */
+    color: #333; /* Dark grey text for better readability */
+    font-family: 'Georgia', serif; /* Classic serif font */
+  }
+  
+  h1, h2, h3, h4 {
+    color: #444; /* Dark grey for headings */
+  }
+  /* AllUsers Component Styling */
+.all-users {
+    background-color: #fdf6e3; /* Light beige background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    margin: 20px auto;
+    width: 80%;
+    max-width: 600px;
+  }
+  
+  .all-users h2 {
+    color: #444; /* Dark grey for heading */
+    font-family: 'Georgia', serif; /* Consistent font */
+    margin-bottom: 20px;
+  }
+  
+  .all-users ul {
+    list-style-type: none; /* Remove bullet points */
+    padding: 0;
+  }
+  
+  .all-users li {
+    background-color: #fffaec; /* Very light background for each item */
+    border: 1px solid #ccc; /* Subtle border */
+    border-radius: 5px;
+    margin-bottom: 10px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .all-users a {
+    display: flex;
+    align-items: center;
+    text-decoration: none; /* Remove underline */
+    color: #6e4b3b; /* Dark brownish text color */
+    font-family: 'Georgia', serif;
+    width: 100%;
+  }
+  
+  .all-users img {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%; /* Circular profile picture */
+    margin-right: 10px;
+  }
+  
+  .all-users strong {
+    margin-right: auto;
+  }
+  
+  /* Loading and Error Messages */
+  .loading, .error {
+    text-align: center;
+    font-family: 'Georgia', serif;
+    color: #6e4b3b; /* Consistent text color */
+  }
+  
+  .error {
+    color: #ff6347; /* Tomato color for errors to make them stand out */
+  }
+  /* RegisterAdmin Form Styling */
+.register-admin-form {
+    background-color: #fdf6e3; /* Light beige background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%; /* Adjust width as needed */
+    max-width: 400px; /* Maximum width */
+    margin: auto; /* Centering the form */
+  }
+  
+  .register-admin-form input[type="text"],
+  .register-admin-form input[type="email"],
+  .register-admin-form input[type="password"] {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%; /* Full width */
+  }
+  
+  .register-admin-form label {
+    margin-bottom: 10px;
+    color: #444; /* Dark grey color for label */
+    display: flex;
+    align-items: center;
+  }
+  
+  .register-admin-form input[type="checkbox"] {
+    margin-left: 10px;
+  }
+  
+  .register-admin-form button {
+    background-color: #6e4b3b; /* Dark brownish color */
+    color: #f1e6d8; /* Light beige text */
+    border: none;
+    padding: 12px 24px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    font-family: 'Georgia', serif;
+    font-size: 16px;
+    margin-top: 10px;
+  }
+  
+  .register-admin-form button:hover {
+    background-color: #8e6f59; /* Lighter brown on hover */
+  }
+  
+  /* Additional styling to ensure consistency across the application */
+  input:focus {
+    outline: none;
+    border-color: #a07d6e; /* Muted tan color for focus */
+  }
+  
+  /* Handling form feedback and messages */
+  .form-message {
+    color: #ff6347; /* Tomato for error messages or feedback */
+    margin-top: 10px;
+  }
+  .admin-dashboard {
+    display: flex;
+    flex-direction: column; /* Stack vertically by default */
+    gap: 20px;
+    padding: 20px;
+    align-items: center; /* Center items horizontally */
+    max-width: 1200px;
+    margin: auto;
+  }
+  
+  @media (min-width: 768px) {
+    .admin-dashboard {
+      flex-direction: row; /* Horizontal layout on larger screens */
+      flex-wrap: wrap; /* Allow wrapping */
+      justify-content: space-evenly; /* Even spacing around items */
+    }
+  }
+  

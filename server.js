@@ -23,6 +23,22 @@ app.use(cors({
 // JWT secret
 const JWT_SECRET = process.env.JWT_SECRET;
 
+const authenticate = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    return res.status(401).send('Access denied. No token provided.');
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (ex) {
+    res.status(401).send('Invalid token.');
+  }
+};
+
+
 const authenticateToken = (req, res, next) => {
   const authHeader = req.header("Authorization");
   console.log("🔑 Received Authorization Header:", authHeader);
@@ -483,6 +499,44 @@ app.get('/api/user/:userId', authenticateToken, async (req, res) => {
     res.status(500).send('Internal server error'); // Handle unexpected errors
   }
 });
+
+app.put('/api/promote/:userId', authenticate, async (req, res) => {
+  try {
+      const user = await prisma.user.findUnique({
+          where: { id: req.params.userId }
+      });
+
+      if (!user) {
+          return res.status(404).send({ message: 'User not found.' });
+      }
+
+      if (user.isAdmin) {
+          return res.status(400).send({ message: 'User is already an admin.' });
+      }
+
+      const updatedUser = await prisma.user.update({
+          where: { id: req.params.userId },
+          data: { isAdmin: true }
+      });
+
+      // Generate a new token with the updated admin flag
+      const token = jwt.sign(
+          { userId: updatedUser.id, isAdmin: updatedUser.isAdmin },
+          process.env.JWT_SECRET,
+          { expiresIn: "1h" }
+      );
+
+      res.send({
+          message: 'User has been promoted to admin.',
+          user: updatedUser,
+          token: token  // Send the new token back to the user
+      });
+  } catch (error) {
+      console.error('Error promoting user:', error);
+      res.status(500).send({ message: 'Internal Server Error' });
+  }
+});
+
 
 const fs = require('fs');
 const dir = './uploads';
