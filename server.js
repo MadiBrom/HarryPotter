@@ -41,11 +41,10 @@ const authenticate = (req, res, next) => {
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.header("Authorization");
+  console.log("Authorization header received:", authHeader);  // Log header to debug
 
-  // If no token is provided
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    console.error("No token or invalid token format.");
-    return res.status(403).json({ error: "User not authenticated." });
+    return res.status(403).json({ error: "No token or invalid token format." });
   }
 
   const token = authHeader.split(" ")[1];  // Extract token from the header
@@ -56,12 +55,12 @@ const authenticateToken = (req, res, next) => {
       return res.status(403).json({ error: "Invalid token." });
     }
 
-    // Attach user information to the request object
+    console.log("Decoded user:", user);  // Log the decoded user data for debugging
     req.user = user;
-    console.log("Token verified, user data:", req.user);  // Log the decoded user info for debugging
     next();
   });
 };
+
 
 const demoteAdminInDB = async (userId) => {
   try {
@@ -92,15 +91,12 @@ const demoteAdminInDB = async (userId) => {
 };
 
 const requireAdmin = (req, res, next) => {
-  console.log("Checking admin permissions for user:", req.user);  // Log the user information
   if (!req.user || !req.user.isAdmin) {
     console.error("Access Denied: User is not an admin.");
     return res.status(403).json({ message: "Access denied. Admins only." });
   }
-  console.log("Admin permission granted.");
   next();
 };
-
 
 // Use it in your routes
 app.post("/api/admin/data", authenticateToken, requireAdmin, (req, res) => {

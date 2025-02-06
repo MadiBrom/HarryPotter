@@ -7,6 +7,8 @@ import "./css/dash.css";
 
 const AdminDashboard = ({ token, setToken, setUser, isAdmin }) => {
   return (
+
+
     <div className='admin-dashboard'>
       <div className='all-users-container'>
         <AllUsers token={token} />
@@ -18,7 +20,7 @@ const AdminDashboard = ({ token, setToken, setUser, isAdmin }) => {
         <PromoteAdmin authToken={token} isAdmin={isAdmin} />
       </div>
       <div className='promote-admin'>
-        <DemoteAdmin authToken={token} isAdmin={isAdmin} />
+        <DemoteAdmin token={token} isAdmin={isAdmin} />
       </div>
     </div>
   );
