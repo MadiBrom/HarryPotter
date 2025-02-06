@@ -151,29 +151,47 @@ app.get("/test", (req, res) => {
   res.send("Server is up and running!");
 });
 
+app.delete('/api/users/:userId', authenticateToken, requireAdmin, async (req, res) => {
+  console.log("Received delete request for user ID:", req.params.userId);
+  try {
+    const user = await prisma.user.delete({
+      where: { id: req.params.userId }
+    });
+    console.log("Deleted user:", user);
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (err) {
+    console.error("Error during deletion:", err);
+    if (err.code === 'P2025') {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+
 // Register route
 // Example backend code adjustment in your registration route
 app.post("/api/auth/register", async (req, res) => {
-  const { username, email, password, isAdmin, secretKey } = req.body;
+  const { username, email, password, isAdmin, secretKey, profilePicUrl } = req.body;
 
-  // Optional: Check a secret key to allow setting isAdmin
-  const isValidAdminKey = secretKey && secretKey === process.env.ADMIN_SECRET_KEY;
-  
   if (!username || !email || !password) {
     return res.status(400).json({ message: "Missing required fields." });
   }
 
   try {
+    // ❗ Always hash the password before storing it
     const hashedPassword = await bcrypt.hash(password, 10);
-const newUser = await prisma.user.create({
-  data: {
-    username,
-    email,
-    password: hashedPassword,
-    isAdmin: isValidAdminKey ? isAdmin : false,
-    profilePicUrl: profilePicUrl || "/uploads/default_pic.jpg" // Ensure default pic
-  },
-});
+
+    const newUser = await prisma.user.create({
+      data: {
+        username,
+        email,
+        password: hashedPassword,  // ✅ Ensure we store the hashed password
+        isAdmin: isAdmin || false,
+        profilePicUrl: profilePicUrl || "/uploads/default_pic.jpg",
+      },
+    });
+
     res.status(201).json({ message: "User registered successfully!", user: newUser });
   } catch (error) {
     console.error("Error registering user:", error);
@@ -181,41 +199,49 @@ const newUser = await prisma.user.create({
   }
 });
 
-
-
-// Login route
 app.post("/api/auth/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user) {
+      console.log("❌ No user found with this email:", email);
       return res.status(401).json({ message: "Invalid login credentials." });
     }
 
-    console.log("🟢 User logging in:", user); // Log user info
+    console.log("🟢 Found user:", user);
 
-    // Ensure token includes isAdmin flag
+    // 🔍 Log the input password and stored hashed password
+    console.log("🔵 Entered Password:", password);
+    console.log("🔵 Stored Hashed Password:", user.password);
+
+    // ✅ Compare password correctly
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+      console.log("❌ Password does not match for:", email);
+      return res.status(401).json({ message: "Invalid login credentials." });
+    }
+
+    console.log("✅ Password matches, logging in user...");
+
     const token = jwt.sign(
       { userId: user.id, isAdmin: user.isAdmin },
-      JWT_SECRET,
+      process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
-
-    console.log("🟡 Generated Token:", token); // Log token before sending
 
     res.status(200).json({
       message: "Login successful.",
       token,
-      user: { id: user.id, username: user.username, email: user.email, isAdmin: user.isAdmin }
+      user: { id: user.id, username: user.username, email: user.email, isAdmin: user.isAdmin },
     });
   } catch (error) {
-    console.error("Error during login:", error);
+    console.error("❌ Error during login:", error);
     res.status(500).json({ message: "Error during login." });
   }
 });
-
 
 app.post('/api/auth/logout', (req, res) => {
   // Add logout logic here, like clearing the session or invalidating the token.
@@ -467,25 +493,39 @@ app.put('/api/update-profile', authenticateToken, async (req, res) => {
   const userId = req.user.userId;
 
   try {
+    // Retrieve the current user
+    const existingUser = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!existingUser) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // 🔹 Ensure password is hashed only if it's being updated
+    let updatedPassword = existingUser.password;
+    if (password && password !== existingUser.password) {
+      updatedPassword = await bcrypt.hash(password, 10);
+    }
+
+    // 🔹 Update user profile
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
         username,
         email,
-        password, // Ensure password is hashed if it's being changed
+        password: updatedPassword,  // ✅ This ensures password is properly hashed
         profilePicUrl,
-        bodyColor
-      }
+        bodyColor,
+      },
     });
+
     res.json(updatedUser);
   } catch (error) {
     console.error("Failed to update user:", error);
     res.status(500).send("Internal Server Error");
   }
 });
-
-
-
 
 // Route to get a single user by ID
 // Fetch a single user by ID

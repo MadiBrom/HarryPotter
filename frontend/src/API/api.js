@@ -525,3 +525,30 @@ const promoteUserToAdmin = async (userId, authToken) => {
 }
 
 export { promoteUserToAdmin };
+
+export const deleteUser = async (userId, token) => {
+  try {
+    const response = await fetch(`${api_url}/users/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error(`User with id: ${userId} not found.`);
+      } else if (response.status === 403) {
+        throw new Error('User is not authorized to perform this action.');
+      } else {
+        throw new Error(`Failed to delete user with id: ${userId}`);
+      }
+    }
+
+    return await response.json(); // Return response if deletion is successful
+  } catch (err) {
+    console.error('Error:', err); // Log the error to debug
+    throw new Error(err.message); // Handle error and throw for further handling in the component
+  }
+};

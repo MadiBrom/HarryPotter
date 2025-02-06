@@ -27,7 +27,7 @@ model TestResult {
   userId      String
   houseResult String
   answer      String?
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 model WandTestResult {
   id        Int      @id @default(autoincrement())
@@ -37,6 +37,6 @@ model WandTestResult {
   result    String
   answers   Json
 
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
