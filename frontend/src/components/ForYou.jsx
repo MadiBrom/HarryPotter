@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { postToFeed, fetchPosts } from '../API/api'; // Import functions
+import { Link } from 'react-router-dom';
 
 const ForYou = ({ userId, token }) => {
   const [post, setPost] = useState('');
@@ -8,6 +9,17 @@ const ForYou = ({ userId, token }) => {
   const [successMessage, setSuccessMessage] = useState('');
   const [posts, setPosts] = useState([]); // State for storing posts
 
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchPosts(token).then(newPosts => {
+        setPosts(newPosts);
+      }).catch(err => console.error('Failed to fetch posts:', err));
+    }, 5000);  // Fetch new posts every 5 seconds
+  
+    return () => clearInterval(intervalId); // Cleanup on component unmount
+  }, [token]);
+  
   // Fetch posts when the component mounts
   useEffect(() => {
     const loadPosts = async () => {
@@ -75,7 +87,12 @@ const ForYou = ({ userId, token }) => {
           posts.map((post) => (
             <div key={post.id} className="comment">
               <p>{post.content}</p>
-              <small>Posted by {post.user.username}</small>
+              <small>Posted by: 
+                <div>
+                <Link to={`/users/${post.user.id}`} style={{ textDecoration: 'none', color: 'blue' }}>
+                  {post.user.username}
+                </Link></div>
+              </small>
             </div>
           ))
         )}
