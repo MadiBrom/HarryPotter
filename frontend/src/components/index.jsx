@@ -7,7 +7,7 @@ import {
   getTeachers,
 } from "../API/api";
 import { useNavigate } from "react-router-dom";
-import "./index.css";
+import "./css/index.css";
 
 // Modal component for displaying spell/elixir details
 const Modal = ({ children, onClose }) => (

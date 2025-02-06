@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './Test.css';
+import './css/Test.css';
 import { saveTestResults, getUser, updateTestResults } from '../API/api';
 
 const traits = {

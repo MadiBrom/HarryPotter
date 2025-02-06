@@ -41,33 +41,63 @@ const authenticate = (req, res, next) => {
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.header("Authorization");
-  console.log("🔑 Received Authorization Header:", authHeader);
 
+  // If no token is provided
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      console.error("❌ Missing or invalid token in request");
-      return res.status(403).json({ error: "User not authenticated." });
+    console.error("No token or invalid token format.");
+    return res.status(403).json({ error: "User not authenticated." });
   }
 
-  const token = authHeader.split(" ")[1]; // Extract token from "Bearer <token>"
-  console.log("🟡 Extracted Token:", token);
+  const token = authHeader.split(" ")[1];  // Extract token from the header
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-      if (err) {
-          console.error("🔴 JWT Verification Failed:", err);
-          return res.status(403).json({ error: "Invalid token." });
-      }
-      console.log("🟢 Token Verified:", user);
-      req.user = user;
-      next();
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      console.error("JWT verification failed:", err);
+      return res.status(403).json({ error: "Invalid token." });
+    }
+
+    // Attach user information to the request object
+    req.user = user;
+    console.log("Token verified, user data:", req.user);  // Log the decoded user info for debugging
+    next();
   });
 };
+
+const demoteAdminInDB = async (userId) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return { success: false };  // User not found
+    }
+
+    // If the user is already a regular user, we don't need to do anything
+    if (!user.isAdmin) {
+      return { success: false };  // Already a regular user
+    }
+
+    // Update the user role to 'user'
+    await prisma.user.update({
+      where: { id: userId },
+      data: { isAdmin: false },
+    });
+
+    return { success: true };  // Successfully demoted
+  } catch (error) {
+    console.error("Error during demotion:", error);
+    throw error;
+  }
+};
+
 const requireAdmin = (req, res, next) => {
-  console.log("🛂 Checking Admin Access for:", req.user); // Log user data
+  console.log("Checking admin permissions for user:", req.user);  // Log the user information
   if (!req.user || !req.user.isAdmin) {
-    console.error("🚫 Access Denied: User is not an admin.");
+    console.error("Access Denied: User is not an admin.");
     return res.status(403).json({ message: "Access denied. Admins only." });
   }
-  console.log("✅ Admin Access Granted");
+  console.log("Admin permission granted.");
   next();
 };
 
@@ -597,6 +627,22 @@ app.put('/api/promote/:userId', authenticate, async (req, res) => {
       res.status(500).send({ message: 'Internal Server Error' });
   }
 });
+
+app.put('/api/demoteAdmin/:userId', authenticateToken, async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const result = await demoteAdminInDB(userId);  // Call the database function to demote the user
+    if (result.success) {
+      return res.status(200).json({ message: 'Admin demoted successfully' });
+    } else {
+      return res.status(404).json({ message: 'User not found or already a regular user' });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 
 
 const fs = require('fs');

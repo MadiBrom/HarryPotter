@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';  // useNavigate instead of useHistory
 import { getSingleUser} from '../API/api';
-import './user.css'; // Ensure the CSS path is correct
+import './css/user.css'; // Ensure the CSS path is correct
 
 const SingleUser = ({ token }) => {
   const [user, setUser] = useState(null);

@@ -75,7 +75,7 @@ const AllUsers = ({ token }) => {
               onClick={() => handleDelete(user.id)}
               style={{ color: 'white', backgroundColor: 'red', marginLeft: '10px', padding: '5px 10px', borderRadius: '5px' }}
             >
-              Delete User
+              Delete
             </button>
             <button onClick={() => setVisibleTooltipId(user.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', fontSize: '18px' }}>
               ⓘ
