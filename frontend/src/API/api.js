@@ -554,25 +554,25 @@ export const deleteUser = async (userId, token) => {
 };
 
 export const demoteAdmin = async (userId, token) => {
+  console.log("Token being sent:", token);  // Log the token to confirm it's being passed
+
   try {
-    console.log("Token:", token);  // Log token for debugging
-    const response = await fetch(`${api_url}/demoteAdmin/${userId}`, {
+    const response = await fetch(`http://localhost:3000/api/demoteAdmin/${userId}`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${token}`,  // Ensure the token is correctly included with Bearer prefix
         'Content-Type': 'application/json',
       },
     });
 
+    const data = await response.json();
     if (!response.ok) {
-      const errorResponse = await response.json();
-      console.log('Error Response:', errorResponse);  // Log the error response from backend
-      throw new Error(errorResponse.message || 'Error demoting admin');
+      throw new Error(data.error || 'Error demoting admin');
     }
 
-    const data = await response.json();
-    console.log('Admin demoted:', data);
+    return data;
   } catch (error) {
     console.error('Error:', error);
+    throw error;
   }
 };

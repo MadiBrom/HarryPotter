@@ -10,8 +10,6 @@ const AdminDashboard = ({ token, setToken, setUser, isAdmin }) => {
 
 
     <div className='admin-dashboard'>
-
-      TEST
       <div className='all-users-container'>
         <AllUsers token={token} />
       </div>
@@ -22,7 +20,7 @@ const AdminDashboard = ({ token, setToken, setUser, isAdmin }) => {
         <PromoteAdmin authToken={token} isAdmin={isAdmin} />
       </div>
       <div className='promote-admin'>
-        <DemoteAdmin authToken={token} isAdmin={isAdmin} />
+        <DemoteAdmin token={token} isAdmin={isAdmin} />
       </div>
     </div>
   );

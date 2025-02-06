@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { demoteAdmin } from '../API/api';  // Import the demoteAdmin function
 
-const DemoteAdmin = () => {
+const DemoteAdmin = ({ token }) => {  // Accept token as a prop
   const [userId, setUserId] = useState('');
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -18,7 +18,7 @@ const DemoteAdmin = () => {
     setSuccessMessage(null);
 
     try {
-      const result = await demoteAdmin(userId);
+      const result = await demoteAdmin(userId, token);  // Pass token here
       setSuccessMessage('Admin demoted successfully');
     } catch (error) {
       setError(error.message);
