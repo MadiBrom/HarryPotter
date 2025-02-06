@@ -20,30 +20,28 @@ const DemoteAdmin = ({ token }) => {  // Accept token as a prop
     try {
       const result = await demoteAdmin(userId, token);  // Pass token here
       setSuccessMessage('Admin demoted successfully');
+
+      // Refresh the page after successful submission
+      window.location.reload();
     } catch (error) {
       setError(error.message);
     }
   };
 
   return (
-    <div>
-      <h2>Demote Admin</h2>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="userId">Enter User ID to Demote:</label>
-        <input
-          type="text"
-          id="userId"
-          value={userId}
-          onChange={handleInputChange}
-          required
-        />
-        <button type="submit">Demote Admin</button>
-      </form>
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <div style={{ padding: '20px', borderRadius: '10px', boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)', backgroundColor: '#fdf6e3', margin: '20px', maxWidth: '500px', textAlign: 'center' }}>
+    <h2>Demote Admin</h2>
+    <input type="text" placeholder="Enter User ID" value={userId} onChange={(e) => setUserId(e.target.value)}
+      style={{ padding: '10px', borderRadius: '5px', border: '1px solid #ccc', width: '80%', marginBottom: '20px' }}
+    />
+    <button onClick={handleSubmit} style={{ padding: '10px 20px', borderRadius: '5px', border: 'none', backgroundColor: '#6e4b3b', color: '#f1e6d8', cursor: 'pointer', fontSize: '16px' }}>
+      Demote
+    </button>      
+    {error && <p style={{ color: 'red' }}>{error}</p>}
       {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
-    </div>
+  </div>
   );
 };
 
 export default DemoteAdmin;
+
