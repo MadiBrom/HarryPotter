@@ -640,6 +640,48 @@ app.put('/api/demoteAdmin/:userId', authenticateToken, async (req, res) => {
 });
 
 
+app.post('/api/posts', async (req, res) => {
+  const { userId, content } = req.body;
+  console.log("Received post request with:", req.body); // Log the entire request body
+
+  if (!userId || !content) {
+    console.error("Missing userId or content");
+    return res.status(400).json({ error: 'User ID and content are required' });
+  }
+
+  try {
+    const post = await prisma.post.create({
+      data: {
+        content,
+        userId,
+      },
+    });
+    console.log("Post created successfully:", post);
+    return res.status(201).json(post);
+  } catch (error) {
+    console.error('Error creating post:', error);
+    return res.status(500).json({ error: 'Failed to create post', message: error.message });
+  }
+});
+
+
+
+// Route to get all posts (could later be updated to get posts for a specific user)
+app.get('/api/posts', async (req, res) => {
+  try {
+    const posts = await prisma.post.findMany({
+      include: {
+        user: true, // Include user info in the response
+      },
+    });
+    return res.status(200).json(posts);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Failed to fetch posts' });
+  }
+});
+
+
 
 const fs = require('fs');
 const dir = './uploads';

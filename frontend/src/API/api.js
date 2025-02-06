@@ -557,7 +557,7 @@ export const demoteAdmin = async (userId, token) => {
   console.log("Token being sent:", token);  // Log the token to confirm it's being passed
 
   try {
-    const response = await fetch(`http://localhost:3000/api/demoteAdmin/${userId}`, {
+    const response = await fetch(`${api_url}/demoteAdmin/${userId}`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,  // Ensure the token is correctly included with Bearer prefix
@@ -573,6 +573,47 @@ export const demoteAdmin = async (userId, token) => {
     return data;
   } catch (error) {
     console.error('Error:', error);
+    throw error;
+  }
+};
+
+
+export const postToFeed = async (postContent, userId) => {
+  try {
+    const response = await fetch(`${api_url}/posts`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content: postContent, userId: userId }), // Ensure both fields are sent
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to post');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error posting to feed:', error);
+    throw error;
+  }
+};
+
+export const fetchPosts = async () => {
+  try {
+    const response = await fetch(`${api_url}/posts`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch posts');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching posts:', error);
     throw error;
   }
 };

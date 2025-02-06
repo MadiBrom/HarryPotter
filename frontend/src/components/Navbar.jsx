@@ -33,6 +33,7 @@ const Navbar = ({ isLoggedIn, isAdmin, handleLogout }) => {
             )}
           </div>
           <button onClick={() => navigate("/profile")}>Profile</button>
+          <button onClick={() => navigate("/foryou")}>For You</button>
           {isAdmin && <button onClick={() => navigate("/admindash")}>Dashboard</button>}
           <button onClick={handleLogoutClick}>Logout</button>
         </>
