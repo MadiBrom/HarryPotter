@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { getSingleUser } from '../API/api';
+import { useParams, useNavigate } from 'react-router-dom';  // useNavigate instead of useHistory
+import { getSingleUser} from '../API/api';
 import './user.css'; // Ensure the CSS path is correct
 
 const SingleUser = ({ token }) => {
@@ -8,6 +8,7 @@ const SingleUser = ({ token }) => {
   const [error, setError] = useState('');
   const [textColor, setTextColor] = useState('#000000'); // Default black text
   const { userId } = useParams();
+  const navigate = useNavigate(); // Using useNavigate hook
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -57,7 +58,7 @@ const SingleUser = ({ token }) => {
               onError={(e) => e.target.src = "http://localhost:3000/uploads/default_pic.jpg"}
             />
           </div>
-          {user.isAdmin && <span style={{ color: textColor ,fontSize: '14px', marginLeft: '10px' } }>Admin</span>}          <div className="details">
+          <div className="details">
             <p className="detail-item" style={{ color: textColor }}>
               <strong style={{ color: textColor }}>House:</strong> {user.testResults?.[0]?.houseResult || "No test taken yet"}
             </p>

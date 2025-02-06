@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Link } from 'react-router-dom';
-import { fetchAllUsers } from "../API/api";
+import { Link, useNavigate } from 'react-router-dom';
+import { fetchAllUsers, deleteUser } from "../API/api";
 
 const AllUsers = ({ token }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [visibleTooltipId, setVisibleTooltipId] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!token) {
@@ -36,6 +37,19 @@ const AllUsers = ({ token }) => {
     });
   };
 
+  const handleDelete = async (userId) => {
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      try {
+        await deleteUser(userId, token);
+        setUsers(users.filter(user => user.id !== userId));  // Update local state to reflect deletion
+        alert("User deleted successfully!");
+        navigate('/admindash'); // Optionally redirect if needed
+      } catch (err) {
+        setError(err.message);
+      }
+    }
+  };
+
   if (loading) return <p style={{ textAlign: 'center', fontSize: '16px', color: '#888' }}>Loading users...</p>;
   if (error) return <p style={{ color: '#ff6347', textAlign: 'center', fontSize: '16px' }}>Error: {error}</p>;
 
@@ -57,6 +71,12 @@ const AllUsers = ({ token }) => {
               </Link>
               {user.isAdmin && <span style={{ color: '#888', fontSize: '14px', marginLeft: '10px' }}>(Admin)</span>}
             </div>
+            <button
+              onClick={() => handleDelete(user.id)}
+              style={{ color: 'white', backgroundColor: 'red', marginLeft: '10px', padding: '5px 10px', borderRadius: '5px' }}
+            >
+              Delete User
+            </button>
             <button onClick={() => setVisibleTooltipId(user.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', fontSize: '18px' }}>
               ⓘ
             </button>
