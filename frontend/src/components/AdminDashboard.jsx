@@ -7,6 +7,7 @@ import "./dash.css";
 const AdminDashboard = ({ token, setToken, setUser, isAdmin }) => {
   return (
     <div className='admin-dashboard'>
+      TEST
       <div className='all-users-container'>
         <AllUsers token={token} />
       </div>
