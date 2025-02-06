@@ -21,11 +21,12 @@ const PromoteAdmin = ({ authToken, isAdmin }) => {
 
   return (
     <div style={{ padding: '20px', borderRadius: '10px', boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)', backgroundColor: '#fdf6e3', margin: '20px', maxWidth: '500px', textAlign: 'center' }}>
+          <h2>Promote Admin</h2>
       <input type="text" placeholder="Enter User ID" value={userId} onChange={(e) => setUserId(e.target.value)}
         style={{ padding: '10px', borderRadius: '5px', border: '1px solid #ccc', width: '80%', marginBottom: '20px' }}
       />
       <button onClick={handlePromote} style={{ padding: '10px 20px', borderRadius: '5px', border: 'none', backgroundColor: '#6e4b3b', color: '#f1e6d8', cursor: 'pointer', fontSize: '16px' }}>
-        Promote to Admin
+        Promote
       </button>
     </div>
   );

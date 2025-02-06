@@ -315,18 +315,27 @@ app.post("/api/saveTestResults", authenticateToken, async (req, res) => {
   }
 
   try {
+    // Save the test result
     const newTestResult = await prisma.testResult.create({
       data: {
-        userId: req.user.userId,
+        userId: req.user.userId, // Assuming the user ID is from the token
         houseResult,
         answer: JSON.stringify(answers), // Store answers as JSON
       },
     });
 
-    res.status(201).json({ message: "Test result saved successfully!", testResult: newTestResult });
+    // Create a post about the test completion
+    const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+    const testName = "specific test name"; // You might want to dynamically fetch this based on the test ID or other parameters
+    const postContent = `${req.user.username} completed a test with result ${result}.`;
+    await prisma.post.create({
+        data: { userId: req.user.userId, content: postContent }
+    });
+
+    res.status(201).json({ message: "Test result and post saved successfully!", testResult: newTestResult });
   } catch (error) {
-    console.error("Error saving test result:", error);
-    res.status(500).json({ message: "Error saving test result." });
+    console.error("Error saving test result and creating post:", error);
+    res.status(500).json({ message: "Error saving test result and creating post.", error: error.message });
   }
 });
 
@@ -636,6 +645,58 @@ app.put('/api/demoteAdmin/:userId', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+app.post("/api/saveTestResults", authenticateToken, async (req, res) => {
+  const { houseResult, answers } = req.body;
+
+  if (!houseResult || !answers) {
+      return res.status(400).json({ message: "Test result and answers are required." });
+  }
+
+  try {
+      const newTestResult = await prisma.testResult.create({
+          data: {
+              userId: req.user.userId,
+              houseResult,
+              answer: JSON.stringify(answers),
+          },
+      });
+
+      const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+      const testName = "specific test name"; // Adjust based on actual data
+      const postContent = `${user.username} has just completed the ${testName} with a result of ${houseResult}.`;
+
+      await prisma.post.create({
+          data: {
+              userId: req.user.userId,
+              content: postContent,
+          },
+      });
+
+      res.status(201).json({ message: "Test result and post saved successfully!", testResult: newTestResult });
+  } catch (error) {
+      console.error("Error saving test result and creating post:", error);
+      res.status(500).json({ message: "Error saving test result and creating post.", error: error.message });
+  }
+});
+
+
+
+// Route to get all posts (could later be updated to get posts for a specific user)
+app.get('/api/posts', async (req, res) => {
+  try {
+    const posts = await prisma.post.findMany({
+      include: {
+        user: true, // Include user info in the response
+      },
+    });
+    return res.status(200).json(posts);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Failed to fetch posts' });
   }
 });
 
