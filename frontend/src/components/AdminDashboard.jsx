@@ -2,12 +2,11 @@ import React from 'react';
 import AllUsers from './AllUsers';
 import RegisterAdmin from "./RegisterAdmin";
 import PromoteAdmin from './PromoteAdmin';
-import "./dash.css";
+import "./css/dash.css";
 
 const AdminDashboard = ({ token, setToken, setUser, isAdmin }) => {
   return (
     <div className='admin-dashboard'>
-      TEST
       <div className='all-users-container'>
         <AllUsers token={token} />
       </div>

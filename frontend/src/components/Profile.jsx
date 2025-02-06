@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getUser, uploadProfilePic, updateUserProfile } from "../API/api";
-import "./profile.css";
+import "./css/profile.css";
 
 const Profile = ({ token, refreshProfile, setUser }) => {
   const [userData, setUserData] = useState(null);
