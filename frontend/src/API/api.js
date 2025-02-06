@@ -552,3 +552,27 @@ export const deleteUser = async (userId, token) => {
     throw new Error(err.message); // Handle error and throw for further handling in the component
   }
 };
+
+export const demoteAdmin = async (userId, token) => {
+  try {
+    console.log("Token:", token);  // Log token for debugging
+    const response = await fetch(`${api_url}/demoteAdmin/${userId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      console.log('Error Response:', errorResponse);  // Log the error response from backend
+      throw new Error(errorResponse.message || 'Error demoting admin');
+    }
+
+    const data = await response.json();
+    console.log('Admin demoted:', data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};

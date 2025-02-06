@@ -2,6 +2,7 @@ import React from 'react';
 import AllUsers from './AllUsers';
 import RegisterAdmin from "./RegisterAdmin";
 import PromoteAdmin from './PromoteAdmin';
+import DemoteAdmin from './DemoteAdmin';
 import "./css/dash.css";
 
 const AdminDashboard = ({ token, setToken, setUser, isAdmin }) => {
@@ -15,6 +16,9 @@ const AdminDashboard = ({ token, setToken, setUser, isAdmin }) => {
       </div>
       <div className='promote-admin'>
         <PromoteAdmin authToken={token} isAdmin={isAdmin} />
+      </div>
+      <div className='promote-admin'>
+        <DemoteAdmin authToken={token} isAdmin={isAdmin} />
       </div>
     </div>
   );
